@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Mi historial | SIMA UdeC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: #f4f7fb; color: #1e293b; min-height: 100vh; }
+    .nav { background: #5298e9; color: #fff; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .nav a { color: #fff; font-weight: 700; text-decoration: none; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 20px 60px; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    h2 { font-size: 1.15rem; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+    th { color: #64748b; font-size: .8rem; text-transform: uppercase; }
+    .muted { color: #64748b; }
+    .badge { display: inline-block; font-size: .78rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .ok { background: #e8f5e9; color: #2e7d32; }
+    .off { background: #fef2f2; color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="/dashboard">← Área personal</a>
+    <span>📚 Mi historial — {{ usuario }}</span>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h1>Mis documentos y notas</h1>
+      <p class="muted">Estado nube:
+        {% if supabase_ok %}<span class="badge ok">Supabase conectado</span>
+        {% else %}<span class="badge off">Modo local (configura SUPABASE_URL/KEY en .env)</span>{% endif %}
+      </p>
+    </div>
+    <div class="card">
+      <h2>📄 Últimos protocolos generados</h2>
+      {% if historial %}
+      <table>
+        <tr><th>Archivo</th><th>Curso</th><th>Unidad</th><th>Tipo</th><th>Fecha</th></tr>
+        {% for p in historial %}
+        <tr>
+          <td>{{ p.nombre_archivo }}</td>
+          <td>{{ p.curso }}</td>
+          <td>{{ p.unidad }}</td>
+          <td>{{ p.tipo }}</td>
+          <td class="muted">{{ p.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p class="muted">Aún no hay protocolos guardados en la nube.</p>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h2>📝 Últimas notas de quiz</h2>
+      {% if notas %}
+      <table>
+        <tr><th>Curso</th><th>Unidad</th><th>Aciertos</th><th>Nota</th><th>Fecha</th></tr>
+        {% for n in notas %}
+        <tr>
+          <td>{{ n.curso }}</td>
+          <td>{{ n.unidad }}</td>
+          <td>{{ n.correctas }}/{{ n.total }}</td>
+          <td><strong>{{ n.nota }}/5.0</strong></td>
+          <td class="muted">{{ n.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p class="muted">Aún no hay notas guardadas en la nube.</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

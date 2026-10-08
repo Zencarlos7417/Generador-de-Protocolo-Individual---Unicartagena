@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Generador de Protocolo - Universidad</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #222; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #1e3a5f, #2b5fad); color: white; padding: 40px 20px; text-align: center; }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header p { font-size: 15px; opacity: 0.9; }
+    .container { max-width: 640px; margin: 30px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .caja { border: 2px dashed #ccc; border-radius: 10px; padding: 30px; text-align: center; transition: border-color 0.3s; }
+    .caja.dragover { border-color: #2b5fad; background: #eef2f9; }
+    button { background: #2b5fad; color: white; border: none; padding: 12px 28px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; font-weight: 600; margin-top: 16px; }
+    button:hover { background: #1e4780; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    .flash { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    .flash-error { background: #fdecea; color: #a33; border-left: 4px solid #a33; }
+    .flash-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+    .flash-warning { background: #fff3e0; color: #e65100; border-left: 4px solid #e65100; }
+    .nota { font-size: 13px; color: #666; margin-top: 16px; text-align: center; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+    select, input[type="file"] { width: 100%; padding: 10px; margin-bottom: 18px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .key-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+    .key-status.ok { background: #e8f5e9; color: #2e7d32; }
+    .key-status.warn { background: #fff3e0; color: #e65100; }
+    .key-status.err { background: #fdecea; color: #a33; }
+    .key-status .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .key-status.ok .dot { background: #2e7d32; }
+    .key-status.warn .dot { background: #e65100; }
+    .key-status.err .dot { background: #a33; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📄 Generador Automático de Protocolos</h1>
+    <p>Sistema de apoyo académico para la Universidad</p>
+  </div>
+
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="flash flash-error">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card">
+      <div id="key-status-container"></div>
+
+      <form action="/generar" method="post" enctype="multipart/form-data" id="form-generar">
+        <label for="tipo_plantilla">Tipo de protocolo</label>
+        <select name="tipo_plantilla" id="tipo_plantilla">
+          <option value="individual" selected>Protocolo Individual</option>
+          <option value="colaborativo">Protocolo Colaborativo</option>
+        </select>
+
+        <label for="pdf">Subir PDF del módulo o lectura académica</label>
+        <div class="caja" id="drop-zone">
+          <input type="file" name="pdf" id="pdf-input" accept="application/pdf" required style="display:none;">
+          <p style="font-size:40px; margin-bottom:10px;">📁</p>
+          <p style="font-size:14px; color:#555;">Pulsa aquí o arrastra un archivo PDF</p>
+          <p id="file-name" style="font-size:13px; color:#2b5fad; margin-top:8px; font-weight:600;" class="hidden"></p>
+        </div>
+        <button type="submit" id="btn-generar">
+          <span id="btn-text">⚙️ Generar protocolo (.docx)</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:15px; margin-bottom:10px;">ℹ️ Instrucciones</h3>
+      <ul style="font-size:13px; color:#555; padding-left:20px; line-height:1.9;">
+        <li>Solo se aceptan archivos PDF</li>
+        <li>Tamaño máximo: 25 MB</li>
+        <li>El proceso puede tardar entre 15 y 40 segundos</li>
+        <li>Se generará un archivo Word (.docx) descargable automáticamente</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const pdfInput = document.getElementById('pdf-input');
+    const fileName = document.getElementById('file-name');
+    const form = document.getElementById('form-generar');
+    const btnGenerar = document.getElementById('btn-generar');
+    const btnText = document.getElementById('btn-text');
+
+    dropZone.addEventListener('click', () => pdfInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        pdfInput.files = e.dataTransfer.files;
+        fileName.textContent = e.dataTransfer.files[0].name;
+        fileName.classList.remove('hidden');
+      }
+    });
+
+    pdfInput.addEventListener('change', () => {
+      if (pdfInput.files.length) {
+        fileName.textContent = pdfInput.files[0].name;
+        fileName.classList.remove('hidden');
+      }
+    });
+
+    form.addEventListener('submit', () => {
+      btnGenerar.querySelector('span').outerHTML = '<span class="spinner"></span> Procesando...';
+      btnGenerar.disabled = true;
+    });
+
+    fetch('/api/key-status')
+      .then(r => r.json())
+      .then(data => {
+        const container = document.getElementById('key-status-container');
+        let cls, msg;
+        if (data.status === 'ok') { cls = 'ok'; msg = '✅ API Key configurada correctamente (' + data.formato + ')'; }
+        else if (data.status === 'missing') { cls = 'err'; msg = '❌ GEMINI_API_KEY no está configurada. Configúrala en el archivo .env'; }
+        else { cls = 'warn'; msg = '⚠️ Formato de API Key no reconocido: ' + data.formato; }
+        container.innerHTML = `<div class="key-status ${cls}"><span class="dot"></span>${msg}</div>`;
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

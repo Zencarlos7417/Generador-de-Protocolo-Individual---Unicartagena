@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Tutor IA SIMA | Universidad de Cartagena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #2b7bc4;
+      --primary-hover: #1d4ed8;
+      --bg-page: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bot-msg-bg: #f1f5f9;
+    }
+
+    body.dark-mode {
+      --bg-page: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --bot-msg-bg: #334155;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* TOP NAVBAR */
+    .nav {
+      background: #5298e9;
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav a.btn-back {
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .nav a.btn-back:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .nav-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    /* CHAT CONTAINER */
+    .chat-container {
+      max-width: 960px;
+      margin: 20px auto;
+      width: 100%;
+      padding: 0 16px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 130px);
+      min-height: 540px;
+      overflow: hidden;
+    }
+
+    /* CHAT HEADER */
+    .chat-header {
+      background: linear-gradient(135deg, #1e3a5f, #2b7bc4);
+      color: white;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .tutor-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tutor-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: white;
+      color: #2b7bc4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    .chat-header-info h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .chat-header-info p {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    /* SELECTOR BAR (MATERIA + UNIDAD) */
+    .topic-selector-bar {
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    body.dark-mode .topic-selector-bar {
+      background: #1e293b;
+    }
+
+    .selector-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .selector-dropdown {
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      font-weight: 600;
+      background: var(--card-bg);
+      color: var(--text-main);
+      cursor: pointer;
+      max-width: 280px;
+    }
+
+    .selector-dropdown:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+    }
+
+    .active-topic-badge {
+      margin-left: auto;
+      font-size: 0.8rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      border: 1px solid #bae6fd;
+    }
+
+    body.dark-mode .active-topic-badge {
+      background: #075985;
+      color: #e0f2fe;
+      border-color: #0284c7;
+    }
+
+    /* MESSAGES AREA */
+    .chat-messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(0,0,0,0.015);
+    }
+
+    .message {
+      max-width: 82%;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      word-break: break-word;
+      animation: fadeInMsg 0.2s ease;
+    }
+
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      background: linear-gradient(135deg, #2b7bc4, #1d4ed8);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 3px;
+      box-shadow: 0 2px 8px rgba(43,123,196,0.2);
+    }
+
+    .message.bot {
+      background: var(--bot-msg-bg);
+      color: var(--text-main);
+      align-self: flex-start;
+      border-bottom-left-radius: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .message.system-note {
+      align-self: center;
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 20px;
+      padding: 5px 14px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    body.dark-mode .message.system-note {
+      background: #1e293b;
+      color: #94a3b8;
+      border-color: #475569;
+    }
+
+    .message.loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .typing-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .typing-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2b7bc4;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    /* QUICK SUGGESTIONS */
+    .suggestions-row {
+      display: flex;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .chip-btn {
+      background: var(--bg-page);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 5px 11px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chip-btn:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+
+    /* INPUT FORM */
+    .chat-form {
+      padding: 12px 18px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex-grow: 1;
+      padding: 12px 18px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 28px;
+      font-size: 0.96rem;
+      font-family: inherit;
+      background: var(--card-bg);
+      color: var(--text-main);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(43,123,196,0.15);
+    }
+
+    .btn-send {
+      background: linear-gradient(135deg, #2b7bc4, #1d4ed8);
+      color: white;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(43,123,196,0.25);
+    }
+
+    .btn-send:hover {
+      transform: scale(1.06);
+      box-shadow: 0 4px 12px rgba(43,123,196,0.35);
+    }
+
+    .btn-send:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    @media (max-width: 640px) {
+      .chat-container { padding: 0 6px; margin: 8px auto; }
+      .chat-card { height: calc(100vh - 80px); }
+      .message { max-width: 92%; }
+      .selector-dropdown { max-width: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP NAVBAR -->
+  <nav class="nav">
+    <div class="nav-left">
+      <a href="/dashboard" class="btn-back">← Volver al Área Personal</a>
+      <span class="nav-title">Universidad de Cartagena • CTEV</span>
+    </div>
+    <div style="font-size: 0.85rem; font-weight: 700;">
+      Semestre V • Magangué
+    </div>
+  </nav>
+
+  <!-- MAIN CHAT CONTAINER -->
+  <main class="chat-container">
+    <div class="chat-card">
+      <div class="chat-header">
+        <div class="tutor-info">
+          <div class="tutor-avatar">🎓</div>
+          <div class="chat-header-info">
+            <h2>Profesor Virtual UdeC</h2>
+            <p>Especialista en Módulos de Ingeniería de Software</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOPIC SELECTOR BAR -->
+      <div class="topic-selector-bar">
+        <div class="selector-label">
+          <span>📚 Materia:</span>
+          <select id="select-materia" class="selector-dropdown" onchange="alCambiarMateria()">
+            <option value="CIENCIA DE DATOS I">CIENCIA DE DATOS I</option>
+            <option value="DESARROLLO DE APPS">DESARROLLO DE APPS</option>
+            <option value="MATEMÁTICAS DISCRETAS">MATEMÁTICAS DISCRETAS</option>
+            <option value="METODOLOGÍA DE LA INVESTIGACIÓN">METODOLOGÍA DE LA INVESTIGACIÓN</option>
+            <option value="PROBABILIDAD Y ESTADÍSTICA">PROBABILIDAD Y ESTADÍSTICA</option>
+            <option value="SISTEMAS DIGITALES">SISTEMAS DIGITALES</option>
+            <option value="TEORÍAS DE AUTÓMATAS">TEORÍAS DE AUTÓMATAS Y LENGUAJES</option>
+          </select>
+        </div>
+
+        <div class="selector-label">
+          <span>📖 Unidad:</span>
+          <select id="select-unidad" class="selector-dropdown" onchange="alCambiarUnidad()">
+            <!-- Dinámico según la materia -->
+          </select>
+        </div>
+
+        <div class="active-topic-badge" id="active-badge">
+          Enfocado en: Ciencia de Datos - U1
+        </div>
+      </div>
+
+      <!-- MESSAGES AREA -->
+      <div class="chat-messages" id="chat-messages">
+        <div class="message bot" id="welcome-message">
+          ¡Hola! He activado el contexto de <strong>CIENCIA DE DATOS I (Unidad 1 - INTRODUCCION A LA CIENCIA DE DATOS)</strong>.
+          <br><br>
+          Tengo presente el contenido oficial de esta unidad. ¿Tienes dudas sobre definiciones, autores, ejemplos de código o cómo plantear el protocolo de esta unidad? ¡Escríbeme!
+        </div>
+      </div>
+
+      <!-- QUICK SUGGESTIONS -->
+      <div class="suggestions-row" id="suggestions-row">
+        <!-- Rellenado dinámicamente -->
+      </div>
+
+      <!-- INPUT FORM -->
+      <form class="chat-form" id="chat-form" onsubmit="return manejarEnvio(event)">
+        <input 
+          type="text" 
+          id="user-input" 
+          class="chat-input" 
+          placeholder="Haz una pregunta específica sobre este módulo..." 
+          autocomplete="off" 
+          autofocus
+        >
+        <button type="submit" class="btn-send" id="btn-send" title="Enviar mensaje">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const UNIDADES_MAP = {
+      "CIENCIA DE DATOS I": {
+        "1": "Unidad 1 - INTRODUCCION A LA CIENCIA DE DATOS",
+        "2": "Unidad 2 - ANÁLISIS EXPLORATORIO DE DATOS",
+        "3": "Unidad 3 - CONEXIÓN A ORÍGENES DE DATOS, LIMPIEZA Y TRANSFORMACIÓN(ETL)",
+        "4": "Unidad 4 - MODELADO DE DATOS (ESTRELLA Y COPO DE NIEVE)"
+      },
+      "DESARROLLO DE APPS": {
+        "1": "Unidad 1 - Fundamentos de desarrollo de App´s",
+        "2": "Unidad 2 - Diseño de aplicaciones en Android Studio",
+        "3": "Unidad 3 - Framework de desarrollo de App's con Flutter",
+        "4": "Unidad 4 - Servicios API desde el framework flutter"
+      },
+      "MATEMÁTICAS DISCRETAS": {
+        "1": "Unidad 1 - EL LENGUAJE DE LAS MATEMATICAS",
+        "2": "Unidad 2 - TEORIA DE GRAFOS",
+        "3": "Unidad 3 - LOGICA E INFERENCIA LOGICA",
+        "4": "Unidad 4 - LOGICA DE PREDICADOS"
+      },
+      "METODOLOGÍA DE LA INVESTIGACIÓN": {
+        "1": "Unidad 1 - El Conocimiento",
+        "2": "Unidad 2 - Método Científico",
+        "3": "Unidad 3 - Justificación de la Investigación",
+        "4": "Unidad 4 - Operalización de Variables"
+      },
+      "PROBABILIDAD Y ESTADÍSTICA": {
+        "1": "Unidad 1 - Generalidades de la Estadistica",
+        "2": "Unidad 2 - Introducción a la Probabilidad",
+        "3": "Unidad 3 - Muestreos Estadísticos",
+        "4": "Unidad 4 - Permutaciones, Combinaciones, Distribución y Proyecciones"
+      },
+      "SISTEMAS DIGITALES": {
+        "1": "Unidad 1 - Introducción y Representación de Datos",
+        "2": "Unidad 2 - Lógica Digital y Álgebra Booleana",
+        "3": "Unidad 3 - Circuitos Combinacionales",
+        "4": "Unidad 4 - Circuitos Secuenciales"
+      },
+      "TEORÍAS DE AUTÓMATAS": {
+        "1": "Unidad 1 - Autómatas: Historia, Componentes de un Compilador",
+        "2": "Unidad 2 - Analizador Léxico: Autómatas Finitos y Expresiones Regulares",
+        "3": "Unidad 3 - Analizador Sintáctico (Gramática BNF)",
+        "4": "Unidad 4 - Autómatas de Pila y Máquina de Turing"
+      }
+    };
+
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const btnSend = document.getElementById('btn-send');
+    const selectMateria = document.getElementById('select-materia');
+    const selectUnidad = document.getElementById('select-unidad');
+    const activeBadge = document.getElementById('active-badge');
+    const suggestionsRow = document.getElementById('suggestions-row');
+
+    if (localStorage.getItem('sima_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+
+    // Inicializar selectores
+    window.addEventListener('DOMContentLoaded', () => {
+      // Leer posibles params de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlCourse = urlParams.get('course');
+      const urlUnidad = urlParams.get('unidad');
+
+      if (urlCourse) {
+        for (let opt of selectMateria.options) {
+          if (opt.value.toUpperCase().includes(urlCourse.toUpperCase())) {
+            selectMateria.value = opt.value;
+            break;
+          }
+        }
+      }
+
+      poblarUnidades();
+      if (urlUnidad && (urlUnidad === 'todas' || ['1','2','3','4'].includes(urlUnidad))) {
+        selectUnidad.value = urlUnidad;
+      }
+
+      actualizarBadge();
+      actualizarSugerencias();
+    });
+
+    function poblarUnidades() {
+      const mat = selectMateria.value;
+      const unidades = UNIDADES_MAP[mat] || UNIDADES_MAP["CIENCIA DE DATOS I"];
+      selectUnidad.innerHTML = '';
+
+      for (let u in unidades) {
+        const opt = document.createElement('option');
+        opt.value = u;
+        opt.textContent = unidades[u];
+        selectUnidad.appendChild(opt);
+      }
+
+      const optAll = document.createElement('option');
+      optAll.value = 'todas';
+      optAll.textContent = '🌟 Todas las Unidades (Materia completa)';
+      selectUnidad.appendChild(optAll);
+    }
+
+    function alCambiarMateria() {
+      poblarUnidades();
+      actualizarBadge();
+      actualizarSugerencias();
+      notificarCambioEnChat();
+    }
+
+    function alCambiarUnidad() {
+      actualizarBadge();
+      actualizarSugerencias();
+      notificarCambioEnChat();
+    }
+
+    function actualizarBadge() {
+      const mat = selectMateria.value;
+      const u = selectUnidad.value;
+      const uNombre = u === 'todas' ? 'Todas las Unidades' : 'Unidad ' + u;
+      activeBadge.textContent = `Enfocado en: ${mat} • ${uNombre}`;
+    }
+
+    function notificarCambioEnChat() {
+      const mat = selectMateria.value;
+      const u = selectUnidad.value;
+      const unidades = UNIDADES_MAP[mat] || {};
+      const uDesc = u === 'todas' ? 'todas las unidades del curso' : (unidades[u] || 'Unidad ' + u);
+
+      agregarMensajeSistema(`🔄 Has cambiado el enfoque del tutor a: ${mat} (${uDesc})`);
+      agregarMensaje(`He cargado el módulo de **${mat}** enfocado en **${uDesc}**. ¿Qué dudas tienes sobre esta parte de la lectura?`, 'bot');
+    }
+
+    function actualizarSugerencias() {
+      const mat = selectMateria.value;
+      const u = selectUnidad.value;
+      suggestionsRow.innerHTML = '';
+
+      const sugerencias = [
+        `Explícame los conceptos clave de la Unidad ${u}`,
+        `¿Qué metodología recomiendas para el protocolo de esta unidad?`,
+        `Dame un resumen sintético de este módulo`,
+        `¿Cuáles son los objetivos principales de estudio?`
+      ];
+
+      sugerencias.forEach(sug => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip-btn';
+        btn.textContent = '💡 ' + sug;
+        btn.onclick = () => usarSugerencia(sug);
+        suggestionsRow.appendChild(btn);
+      });
+    }
+
+    function usarSugerencia(texto) {
+      userInput.value = texto;
+      manejarEnvio();
+    }
+
+    async function manejarEnvio(e) {
+      if (e) e.preventDefault();
+
+      const texto = userInput.value.trim();
+      if (!texto) return false;
+
+      const materiaActual = selectMateria.value;
+      const unidadActual = selectUnidad.value;
+
+      // 1. Mostrar mensaje del usuario
+      agregarMensaje(texto, 'user');
+      userInput.value = '';
+      userInput.disabled = true;
+      btnSend.disabled = true;
+
+      // 2. Indicador loading
+      const elemLoading = agregarIndicadorLoading();
+
+      try {
+        const resp = await fetch('/api/tutor-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: texto,
+            course_name: materiaActual,
+            unidad_num: unidadActual
+          })
+        });
+
+        const data = await resp.json();
+
+        if (elemLoading && elemLoading.parentNode) {
+          elemLoading.remove();
+        }
+
+        const respuestaTexto = data.reply || 'El tutor no pudo generar una respuesta.';
+        agregarMensaje(respuestaTexto, 'bot');
+      } catch (err) {
+        if (elemLoading && elemLoading.parentNode) {
+          elemLoading.remove();
+        }
+        agregarMensaje('Hubo un inconveniente conectando con el servidor. Verifica que python app.py esté corriendo.', 'bot');
+      } finally {
+        userInput.disabled = false;
+        btnSend.disabled = false;
+        userInput.focus();
+      }
+
+      return false;
+    }
+
+    function formatText(raw) {
+      let formatted = raw
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      formatted = formatted.replace(/\n/g, '<br>');
+      return formatted;
+    }
+
+    function agregarMensaje(texto, tipo) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + tipo;
+
+      if (tipo === 'bot') {
+        msgDiv.innerHTML = formatText(texto);
+      } else {
+        msgDiv.textContent = texto;
+      }
+
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return msgDiv;
+    }
+
+    function agregarMensajeSistema(texto) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message system-note';
+      msgDiv.textContent = texto;
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function agregarIndicadorLoading() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message bot loading';
+      msgDiv.innerHTML = `
+        <span>Consultando módulo oficial UdeC</span>
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return msgDiv;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <title>Corrector Anti-IA | SIMA UdeC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: #f4f7fb; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+    body.dark-mode { background: #0f172a; color: #f1f5f9; }
+    body.dark-mode .card { background: #1e293b; border-color: #334155; }
+    body.dark-mode textarea { background: #0f172a; color: #f1f5f9; border-color: #334155; }
+    .nav { background: #5298e9; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; color: white; }
+    .nav a { color: white; text-decoration: none; font-weight: 700; }
+    .container { max-width: 1020px; margin: 30px auto; width: 100%; padding: 0 16px 60px; }
+    .card { background: #fff; border-radius: 14px; padding: 28px; box-shadow: 0 8px 24px rgba(0,0,0,.06); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+    h1 { font-size: 1.6rem; margin-bottom: 6px; }
+    p.sub { color: #64748b; font-size: .93rem; margin-bottom: 18px; }
+    label { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+    textarea { width: 100%; min-height: 180px; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: .95rem; font-family: inherit; resize: vertical; }
+    .btn { width: 100%; margin-top: 14px; background: linear-gradient(135deg,#db2777,#9d174d); color: #fff; border: none; padding: 13px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(219,39,119,.3); }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+    .pane { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; font-size: .92rem; line-height: 1.6; white-space: pre-wrap; }
+    body.dark-mode .pane { border-color: #334155; }
+    .pane h3 { font-size: .95rem; margin-bottom: 8px; }
+    .pane.before { background: #fef2f2; }
+    body.dark-mode .pane.before { background: #3b1d24; }
+    .pane.after { background: #f0fdf4; }
+    body.dark-mode .pane.after { background: #123324; }
+    mark { background: #fde68b; border-radius: 3px; padding: 0 2px; }
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 4px; }
+    .stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; font-size: .88rem; }
+    body.dark-mode .stat { background: #0f172a; border-color: #334155; }
+    .stat b { font-size: 1.2rem; display: block; }
+    .loading { text-align: center; padding: 30px; font-weight: 700; color: #64748b; display: none; }
+    .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid #db2777; border-top-color: transparent; border-radius: 50%; animation: spin .6s linear infinite; margin-bottom: 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #result { display: none; }
+    .btn-copy { background: #2b7bc4; margin-top: 12px; }
+    @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/dashboard">← Volver al Área Personal</a>
+    <span>✍️ Corrector Anti-IA</span>
+  </nav>
+  <div class="container">
+    <div class="card">
+      <h1>Corrector Anti-IA (Humanizador)</h1>
+      <p class="sub">Pega el texto de tu protocolo. La IA detecta las frases típicas que los profesores reconocen al instante y lo reescribe con tono natural de estudiante de 5.º semestre, sin cambiar el contenido.</p>
+      <label for="texto">Texto a humanizar</label>
+      <textarea id="texto" placeholder="Pega aquí el resumen, las conclusiones o el protocolo completo..."></textarea>
+      <button class="btn" id="btn-go" onclick="humanizar()">✨ Humanizar texto ahora</button>
+      <div class="loading" id="loading"><div class="spinner"></div><p>Reescribiendo con tono estudiante...</p></div>
+    </div>
+    <div class="card" id="result">
+      <h1 style="font-size:1.2rem;">Antes / Después</h1>
+      <div class="stats">
+        <div class="stat"><b id="st-det">0</b> muletillas detectadas</div>
+        <div class="stat"><b id="st-quedan">0</b> restantes</div>
+        <div class="stat"><b id="st-pct">0%</b> de mejora</div>
+      </div>
+      <div class="cols">
+        <div class="pane before"><h3>🔴 Antes (con resaltado)</h3><div id="pane-before"></div></div>
+        <div class="pane after"><h3>🟢 Después (humanizado)</h3><div id="pane-after"></div></div>
+      </div>
+      <button class="btn btn-copy" onclick="copiar()">📋 Copiar texto humanizado</button>
+    </div>
+  </div>
+  <script>
+    if (localStorage.getItem('sima_theme') === 'dark') document.body.classList.add('dark-mode');
+    let ultimoTexto = '';
+    async function humanizar() {
+      const t = document.getElementById('texto').value.trim();
+      if (t.length < 50) { alert('Pega un texto de al menos 50 caracteres.'); return; }
+      document.getElementById('btn-go').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+      try {
+        const r = await fetch('/api/humanizar', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto: t })
+        });
+        const d = await r.json();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('btn-go').disabled = false;
+        if (!d.texto_humanizado) { alert('No se pudo humanizar. Intenta de nuevo.'); return; }
+        ultimoTexto = d.texto_humanizado;
+        document.getElementById('pane-before').innerHTML = resaltar(d.texto_original || t, d.muletillas || []);
+        document.getElementById('pane-after').textContent = d.texto_humanizado;
+        document.getElementById('st-det').textContent = d.detectadas || 0;
+        document.getElementById('st-quedan').textContent = d.restantes || 0;
+        document.getElementById('st-pct').textContent = (d.mejora_pct || 0) + '%';
+        document.getElementById('result').style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('btn-go').disabled = false;
+        alert('Error de conexión.');
+      }
+    }
+    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function resaltar(texto, frases) {
+      let h = esc(texto);
+      frases.slice().sort((a,b) => b.length - a.length).forEach(f => {
+        if (!f) return;
+        const rx = new RegExp('(' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+        h = h.replace(rx, '<mark>$1</mark>');
+      });
+      return h.replace(/\n/g, '<br>');
+    }
+    function copiar() {
+      navigator.clipboard.writeText(ultimoTexto).then(() => alert('Texto humanizado copiado.'));
+    }
+  </script>
+</body>
+</html>

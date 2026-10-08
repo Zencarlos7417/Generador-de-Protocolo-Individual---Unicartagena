@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <title>Mi perfil | SIMA UdeC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: #f4f7fb; color: #1e293b; min-height: 100vh; }
+    body.dark-mode { background: #0f172a; color: #f1f5f9; }
+    body.dark-mode .card { background: #1e293b; border-color: #334155; }
+    body.dark-mode input { background: #0f172a; color: #f1f5f9; border-color: #334155; }
+    .nav { background: #5298e9; color: #fff; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .nav a { color: #fff; font-weight: 700; text-decoration: none; }
+    .container { max-width: 560px; margin: 30px auto; padding: 0 20px 60px; }
+    .card { background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; padding: 28px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    p.sub { color: #64748b; font-size: .9rem; margin-bottom: 20px; }
+    label { display: block; font-weight: 700; font-size: .88rem; margin: 14px 0 6px; }
+    input[type=text] { width: 100%; padding: 11px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+    .avatars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 6px; }
+    .avatars label { margin: 0; }
+    .avatars input { display: none; }
+    .avatars span { display: flex; align-items: center; justify-content: center; font-size: 1.7rem; padding: 8px 0; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; }
+    .avatars input:checked + span { border-color: #2b7bc4; background: #eff6ff; }
+    .preview { display: flex; align-items: center; gap: 14px; margin: 18px 0 4px; padding: 14px; background: #f8fafc; border-radius: 10px; }
+    body.dark-mode .preview { background: #0f172a; }
+    .preview .big { font-size: 2.4rem; }
+    button.go { width: 100%; margin-top: 18px; background: #2b7bc4; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    button.go:hover { background: #1d5a94; }
+    .flash { background: #fdecea; color: #a33; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: .9rem; }
+    .ok { background: #e8f5e9; color: #2e7d32; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="/dashboard">← Área personal</a>
+    <span>👤 Mi perfil</span>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h1>Editar mi perfil</h1>
+      <p class="sub">Tu nombre y avatar se muestran en la barra superior. {% if not supabase_ok %}Activa Supabase para guardarlos en la nube.{% endif %}</p>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+        {% endif %}
+      {% endwith %}
+      <form action="/perfil" method="POST">
+        <label for="nombre_mostrado">Nombre mostrado</label>
+        <input type="text" id="nombre_mostrado" name="nombre_mostrado"
+               value="{{ perfil.nombre_mostrado or usuario }}" maxlength="60" required>
+        <label>Elige tu avatar</label>
+        <div class="avatars">
+          {% for a in ['🎓','👩‍💻','👨‍💻','🦊','🐱','🚀','🦉','🐬','🔥','⭐','🎯','💡'] %}
+          <label><input type="radio" name="avatar" value="{{ a }}" {% if (perfil.avatar or '🎓') == a %}checked{% endif %}><span>{{ a }}</span></label>
+          {% endfor %}
+        </div>
+        <div class="preview">
+          <span class="big" id="prev-avatar">{{ perfil.avatar or '🎓' }}</span>
+          <div><strong id="prev-nombre">{{ perfil.nombre_mostrado or usuario }}</strong><br>
+          <small style="color:#64748b;">@{{ usuario }} • Semestre V • Magangué</small></div>
+        </div>
+        <button type="submit" class="go">💾 Guardar perfil</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    if (localStorage.getItem('sima_theme') === 'dark') document.body.classList.add('dark-mode');
+    const nombreInput = document.getElementById('nombre_mostrado');
+    nombreInput.addEventListener('input', () => {
+      document.getElementById('prev-nombre').textContent = nombreInput.value || '@{{ usuario }}';
+    });
+    document.querySelectorAll('input[name=avatar]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('prev-avatar').textContent = r.value;
+      });
+    });
+  </script>
+</body>
+</html>

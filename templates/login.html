@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>SIMA 2026-2 - Iniciar Sesión | Universidad de Cartagena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sima-blue: #5298e9;
+      --sima-blue-hover: #3d82d4;
+      --sima-dark: #0f2337;
+      --text-main: #2d3748;
+      --text-muted: #718096;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-main);
+      background-color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login-container {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* LEFT SIDE: HERO BANNER */
+    .banner-side {
+      position: relative;
+      background: #0f2337;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 40px;
+      background-image: url("{{ url_for('static', filename='img/login_left_banner.jpg') }}");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(15, 35, 55, 0.45) 0%, rgba(15, 35, 55, 0.75) 100%);
+      z-index: 1;
+    }
+
+    .banner-header-actions {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: flex-end;
+      gap: 14px;
+    }
+
+    .btn-banner-top {
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-banner-top:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .btn-banner-cyan {
+      background-color: #0099ff;
+    }
+
+    .banner-bottom-text {
+      position: relative;
+      z-index: 2;
+      max-width: 650px;
+      margin-top: auto;
+      padding-bottom: 20px;
+    }
+
+    .cursive-pruebate {
+      font-family: 'Dancing Script', cursive;
+      font-size: 5rem;
+      color: #cbd5e1;
+      line-height: 1;
+      margin-bottom: 10px;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .banner-subtitle {
+      color: #e2e8f0;
+      font-size: 1.25rem;
+      line-height: 1.4;
+      font-weight: 400;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* RIGHT SIDE: LOGIN FORM */
+    .form-side {
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 50px 48px;
+      position: relative;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.06);
+      z-index: 3;
+    }
+
+    .ctev-brand {
+      margin-bottom: 36px;
+      text-align: left;
+    }
+
+    .ctev-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .welcome-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .welcome-subtitle {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: #1e293b;
+      background-color: #fefefe;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--sima-blue);
+      box-shadow: 0 0 0 3px rgba(82, 152, 233, 0.2);
+    }
+
+    /* Input highlighting as seen in SIMA */
+    .form-input.highlighted {
+      background-color: #fffde7;
+      border-color: #f6e05e;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #64748b;
+      font-size: 1.2rem;
+      padding: 4px;
+    }
+
+    .toggle-password:hover {
+      color: #1e293b;
+    }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      color: var(--sima-blue);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 24px;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--sima-blue);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(82, 152, 233, 0.35);
+    }
+
+    .btn-submit:hover {
+      background-color: var(--sima-blue-hover);
+      transform: translateY(-1px);
+    }
+
+    .first-time-section {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid #edf2f7;
+    }
+
+    .first-time-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .access-help-header {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .help-steps {
+      list-style: none;
+      counter-reset: steps-counter;
+      font-size: 0.88rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .help-steps li {
+      counter-increment: steps-counter;
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .help-steps li::before {
+      content: counter(steps-counter) ". ";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .help-steps a {
+      color: var(--sima-blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .help-steps strong {
+      color: #1e293b;
+    }
+
+    /* Floating action button (bottom right) */
+    .floating-menu-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #263238;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 10;
+      transition: transform 0.2s;
+    }
+
+    .floating-menu-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .back-home:hover {
+      color: var(--sima-blue);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .login-container {
+        grid-template-columns: 1fr;
+      }
+      .banner-side {
+        min-height: 300px;
+        padding: 30px 20px;
+      }
+      .cursive-pruebate {
+        font-size: 3.5rem;
+      }
+      .form-side {
+        padding: 40px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- LEFT SIDE: HERO BANNER (segunda.jpeg) -->
+    <div class="banner-side">
+      <div class="banner-overlay"></div>
+
+      <div class="banner-header-actions">
+        <a href="https://sima.unicartagena.edu.co" target="_blank" class="btn-banner-top">Saber Pro</a>
+        <a href="https://meet.google.com/xdr-vgym-oxz" target="_blank" class="btn-banner-top btn-banner-cyan">Mesa de Ayuda</a>
+      </div>
+
+      <div class="banner-bottom-text">
+        <div class="cursive-pruebate">Pruébate</div>
+        <p class="banner-subtitle">Realiza tu curso virtual en competencias genéricas y demuestra tus conocimientos.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: LOGIN FORM (segunda.jpeg) -->
+    <div class="form-side">
+      <a href="/" class="back-home">
+        <span>← Volver al portal principal</span>
+      </a>
+
+      <div class="ctev-brand">
+        <img src="{{ url_for('static', filename='img/ctev_logo.jpg') }}" alt="CTEV Universidad de Cartagena" class="ctev-logo">
+      </div>
+
+      <h1 class="welcome-title">Hola, bienvenido a SIMA 2026-2</h1>
+      <p class="welcome-subtitle">Ingrese sus datos para iniciar sesión en su cuenta</p>
+
+      <form action="/login" method="POST" id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="username">Nombre de usuario</label>
+          <div class="input-wrapper">
+            <input 
+              type="text" 
+              id="username" 
+              name="username" 
+              class="form-input"
+              value=""
+              required
+              placeholder="Número de identificación"
+              autocomplete="username"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input"
+              value=""
+              required
+              placeholder="Contraseña del sistema"
+              autocomplete="current-password"
+            >
+            <button type="button" class="toggle-password" id="btn-toggle-password" title="Ver contraseña">
+              👁️
+            </button>
+          </div>
+          <a href="#" class="forgot-link">¿Olvidó su contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          Acceder
+        </button>
+      </form>
+
+      <p style="margin-top:14px; font-size:.9rem; text-align:center; color:#64748b;">
+        ¿No tienes cuenta? <a href="/registro" style="color:#2b7bc4; font-weight:700;">Crear cuenta en la nube</a>
+      </p>
+
+      <div class="first-time-section">
+        <div class="first-time-title">Primera vez que utiliza este sitio</div>
+        <div class="access-help-header">
+          <span>📍</span> ¿No puede acceder?
+        </div>
+        <ol class="help-steps">
+          <li>Comprobar su acceso a <a href="https://sma.unicartagena.edu.co" target="_blank">SMA</a></li>
+          <li>Ingresar al campus virtual SIMA de la siguiente manera:</li>
+          <li>El nombre de usuario será su número de identificación</li>
+          <li>La clave será la misma del sistema <strong>académico SMA</strong>.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating menu button -->
+  <button class="floating-menu-btn" title="Opciones" onclick="location.href='/dashboard'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <script>
+    const toggleBtn = document.getElementById('btn-toggle-password');
+    const passwordInput = document.getElementById('password');
+
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      toggleBtn.textContent = isPassword ? '🔒' : '👁️';
+    });
+  </script>
+</body>
+</html>

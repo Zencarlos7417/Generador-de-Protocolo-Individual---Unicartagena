@@ -1,0 +1,13 @@
+venv/
+.env
+tmp/
+protocolo_app.log
+primera.jpeg
+segunda.jpeg
+tercera.jpeg
+logo.jpg
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store

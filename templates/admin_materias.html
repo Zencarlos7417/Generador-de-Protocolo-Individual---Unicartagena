@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <title>Administrar materias | SIMA UdeC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: #f4f7fb; color: #1e293b; min-height: 100vh; }
+    .nav { background: #5298e9; color: #fff; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .nav a { color: #fff; font-weight: 700; text-decoration: none; }
+    .container { max-width: 860px; margin: 30px auto; padding: 0 20px 60px; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 26px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    .muted { color: #64748b; font-size: .9rem; margin-bottom: 18px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label { display: block; font-weight: 700; font-size: .88rem; margin: 12px 0 6px; }
+    input, select { width: 100%; padding: 11px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: .95rem; font-family: inherit; }
+    .drop { border: 2px dashed #93c5fd; border-radius: 10px; padding: 26px; text-align: center; background: #f8fafc; cursor: pointer; margin-top: 6px; }
+    .drop small { color: #64748b; }
+    button.go { width: 100%; margin-top: 18px; background: linear-gradient(135deg,#7c3aed,#5b21b6); color: #fff; border: none; padding: 13px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    .flash { background: #fdecea; color: #a33; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: .9rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
+    th { color: #64748b; font-size: .78rem; text-transform: uppercase; }
+    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="/dashboard">← Área personal</a>
+    <span>🛠️ Administrar materias — {{ usuario }}</span>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h1>Nueva materia + módulo</h1>
+      <p class="muted">Arrastra el PDF del módulo, elige la unidad, escribe su nombre oficial, el semestre y listo: aparecerá como tarjeta en el dashboard.</p>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+        {% endif %}
+      {% endwith %}
+      <form action="/admin/materias" method="POST" enctype="multipart/form-data" id="form-materia">
+        <div class="grid2">
+          <div>
+            <label for="nombre">Nombre de la materia</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Ej: BASES DE DATOS II" required>
+          </div>
+          <div>
+            <label for="docente">Docente</label>
+            <input type="text" id="docente" name="docente" placeholder="Nombre del profesor">
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label for="semestre">Semestre</label>
+            <select id="semestre" name="semestre">
+              <option>SEMESTRE I</option><option>SEMESTRE II</option>
+              <option>SEMESTRE III</option><option>SEMESTRE IV</option>
+              <option selected>SEMESTRE V</option><option>SEMESTRE VI</option>
+              <option>SEMESTRE VII</option><option>SEMESTRE VIII</option>
+              <option>SEMESTRE IX</option><option>SEMESTRE X</option>
+            </select>
+          </div>
+          <div>
+            <label for="centro">Centro tutorial</label>
+            <select id="centro" name="centro">
+              <option selected>MAGANGUÉ</option><option>CARTAGENA</option>
+              <option>MOMPOX</option><option>SAN JUAN</option>
+              <option>CARMEN DE BOLÍVAR</option><option>CERETÉ</option><option>LORICA</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label for="unidad_num">Unidad del módulo</label>
+            <select id="unidad_num" name="unidad_num">
+              <option value="1">Unidad 1</option><option value="2">Unidad 2</option>
+              <option value="3">Unidad 3</option><option value="4">Unidad 4</option>
+            </select>
+          </div>
+          <div>
+            <label for="unidad_nombre">Nombre oficial de la unidad</label>
+            <input type="text" id="unidad_nombre" name="unidad_nombre" placeholder="Ej: MODELO ENTIDAD-RELACIÓN" required>
+          </div>
+        </div>
+        <label>Módulo en PDF (arrastra o haz clic)</label>
+        <div class="drop" id="drop">
+          <input type="file" name="pdf" id="pdf" accept="application/pdf" required style="display:none;">
+          <div style="font-size:2rem;">📁</div>
+          <div id="fname" style="font-weight:700;">Seleccionar PDF del módulo</div>
+          <small>Se guarda en la nube (Supabase) y como respaldo local.</small>
+        </div>
+        <button type="submit" class="go" id="btn">📢 Publicar materia + unidad</button>
+      </form>
+    </div>
+    <div class="card">
+      <h1 style="font-size:1.15rem;">Agregar más unidades a una materia existente</h1>
+      <p class="muted">Selecciona la materia, indica el número y nombre oficial de la unidad y arrastra su PDF. Puedes repetirlo para las unidades 2, 3 y 4.</p>
+      <form action="/admin/materias" method="POST" enctype="multipart/form-data" id="form-unidad">
+        <input type="hidden" name="accion" value="agregar_unidad">
+        <div class="grid2">
+          <div>
+            <label for="slug2">Materia existente</label>
+            <select id="slug2" name="slug" required>
+              {% for m in materias %}
+              <option value="{{ m.slug }}">{{ m.nombre }} ({{ m.semestre }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="unidad_num2">Número de unidad</label>
+            <select id="unidad_num2" name="unidad_num">
+              <option value="1">Unidad 1</option><option value="2">Unidad 2</option>
+              <option value="3">Unidad 3</option><option value="4">Unidad 4</option>
+            </select>
+          </div>
+        </div>
+        <label for="unidad_nombre2">Nombre oficial de la unidad</label>
+        <input type="text" id="unidad_nombre2" name="unidad_nombre" placeholder="Ej: MODELO ENTIDAD-RELACIÓN" required>
+        <label>Módulo en PDF</label>
+        <div class="drop" id="drop2">
+          <input type="file" name="pdf" id="pdf2" accept="application/pdf" required style="display:none;">
+          <div style="font-size:2rem;">📁</div>
+          <div id="fname2" style="font-weight:700;">Seleccionar PDF de la unidad</div>
+        </div>
+        <button type="submit" class="go" id="btn2">➕ Agregar unidad a la materia</button>
+      </form>
+    </div>
+    <div class="card">
+      <h1 style="font-size:1.15rem;">Materias publicadas</h1>
+      {% if materias %}
+      <table>
+        <tr><th>Materia</th><th>Semestre</th><th>Centro</th><th>Docente</th><th></th></tr>
+        {% for m in materias %}
+        <tr>
+          <td>{{ m.nombre }}</td><td>{{ m.semestre }}</td><td>{{ m.centro }}</td><td>{{ m.docente }}</td>
+          <td>
+            <form action="/admin/materias" method="POST" onsubmit="return confirm('¿Eliminar {{ m.nombre }} con todas sus unidades y PDFs?');" style="display:inline;">
+              <input type="hidden" name="accion" value="eliminar_materia">
+              <input type="hidden" name="slug" value="{{ m.slug }}">
+              <button type="submit" style="background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:6px; padding:5px 10px; cursor:pointer; font-weight:700;">🗑️ Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p class="muted">Aún no hay materias creadas desde aquí.</p>
+      {% endif %}
+    </div>
+  </div>
+  <script>
+    const drop = document.getElementById('drop');
+    const pdf = document.getElementById('pdf');
+    const fname = document.getElementById('fname');
+    drop.addEventListener('click', () => pdf.click());
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); });
+    drop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files.length) { pdf.files = e.dataTransfer.files; fname.textContent = e.dataTransfer.files[0].name; }
+    });
+    pdf.addEventListener('change', () => { if (pdf.files.length) fname.textContent = pdf.files[0].name; });
+    document.getElementById('form-materia').addEventListener('submit', () => {
+      document.getElementById('btn').disabled = true;
+      document.getElementById('btn').textContent = 'Publicando...';
+    });
+    const drop2 = document.getElementById('drop2');
+    const pdf2 = document.getElementById('pdf2');
+    const fname2 = document.getElementById('fname2');
+    if (drop2) {
+      drop2.addEventListener('click', () => pdf2.click());
+      drop2.addEventListener('dragover', (e) => { e.preventDefault(); });
+      drop2.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length) { pdf2.files = e.dataTransfer.files; fname2.textContent = e.dataTransfer.files[0].name; }
+      });
+      pdf2.addEventListener('change', () => { if (pdf2.files.length) fname2.textContent = pdf2.files[0].name; });
+      document.getElementById('form-unidad').addEventListener('submit', () => {
+        document.getElementById('btn2').disabled = true;
+        document.getElementById('btn2').textContent = 'Agregando...';
+      });
+    }
+  </script>
+</body>
+</html>

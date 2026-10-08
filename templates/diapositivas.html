@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Generador de Diapositivas IA | SIMA CTEV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #2b7bc4;
+      --bg-page: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+    body.dark-mode {
+      --bg-page: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; }
+    .nav { background: #5298e9; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; color: white; }
+    .nav a { color: white; text-decoration: none; font-weight: 700; }
+    .container { max-width: 760px; margin: 40px auto; padding: 0 20px; }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 36px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid var(--border-color); }
+    h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
+    p.sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 28px; }
+    .form-group { margin-bottom: 22px; }
+    label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; color: var(--text-main); }
+    select { width: 100%; padding: 12px; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 1rem; background: var(--card-bg); color: var(--text-main); font-family: inherit; }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
+    .btn-submit:hover { background: linear-gradient(135deg, #047857, #065f46); }
+    .btn-download { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #2b7bc4, #1d4ed8); color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; margin-right: 10px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(43,123,196,0.25); }
+    .btn-download:hover { background: linear-gradient(135deg, #1d4ed8, #1e40af); }
+    .result-box { display: none; margin-top: 30px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 22px; }
+    .result-box.active { display: block; }
+    body.dark-mode .result-box { background: #1e293b; }
+    .slide-item { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+    body.dark-mode .slide-item { background: #0f172a; border-color: #475569; }
+    .slide-item h4 { color: #2b7bc4; margin-bottom: 6px; font-size: 1.1rem; }
+    .slide-item ul { padding-left: 20px; color: var(--text-main); font-size: 0.95rem; line-height: 1.6; }
+    .flash { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/dashboard">← Volver al Área Personal</a>
+    <span>📊 Generador de Diapositivas IA</span>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h1>Generador de Presentaciones y Diapositivas</h1>
+      <p class="sub">Selecciona la asignatura y la unidad (o todas las unidades). La IA generará la estructura y te permitirá descargar la presentación lista en formato PowerPoint (<code>.pptx</code>).</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="flash">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" id="slides-form" onsubmit="mostrarCargando()">
+        <div class="form-group">
+          <label for="course_name">Asignatura</label>
+          <select name="course_name" id="course_name" class="select-style" required>
+            <option value="CIENCIA DE DATOS I">CIENCIA DE DATOS I - Semestre V</option>
+            <option value="DESARROLLO DE APPS">DESARROLLO DE APPS - Semestre V</option>
+            <option value="MATEMÁTICAS DISCRETAS">MATEMÁTICAS DISCRETAS - Semestre V</option>
+            <option value="METODOLOGÍA DE LA INVESTIGACIÓN">METODOLOGÍA DE LA INVESTIGACIÓN - Semestre V</option>
+            <option value="PROBABILIDAD Y ESTADÍSTICA">PROBABILIDAD Y ESTADÍSTICA - Semestre V</option>
+            <option value="SISTEMAS DIGITALES">SISTEMAS DIGITALES - Semestre V</option>
+            <option value="TEORÍAS DE AUTÓMATAS">TEORÍAS DE AUTÓMATAS Y LENGUAJES - Semestre V</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="unidad_seleccion">Unidad o Alcance</label>
+          <select name="unidad_seleccion" id="unidad_seleccion" class="select-style" required>
+            <option value="1">Unidad 1</option>
+            <option value="2">Unidad 2</option>
+            <option value="3">Unidad 3</option>
+            <option value="4">Unidad 4</option>
+            <option value="todas">🌟 Todas las Unidades (Curso Completo)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-gen-slides">
+          ✨ Generar y Descargar Presentación (.pptx)
+        </button>
+      </form>
+
+      <div id="loading-box" style="display:none; text-align:center; padding: 30px;">
+        <div style="display:inline-block; width:30px; height:30px; border:3px solid #059669; border-top-color:transparent; border-radius:50%; animation: spin 0.6s linear infinite; margin-bottom:10px;"></div>
+        <p style="font-weight:700; color:var(--text-muted);">Construyendo diapositivas y archivo PowerPoint (.pptx) con IA... Por favor espera unos segundos.</p>
+      </div>
+
+      <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+      </style>
+
+      {% if slides_html %}
+      <div class="result-box active" id="result-container">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h3 style="color: #059669; margin-bottom: 4px;">🎉 ¡Presentación Generada con Éxito!</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Materia: <strong>{{ sel_course }}</strong> | Alcance: <strong>{{ sel_unidad }}</strong></p>
+          </div>
+          <div>
+            <a href="/api/descargar-pptx?file={{ pptx_filename }}" class="btn-download">
+              📥 Descargar PowerPoint (.pptx)
+            </a>
+          </div>
+        </div>
+
+        <div style="background: var(--card-bg); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color);">
+          <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-muted);">Vista previa del contenido:</h4>
+          {{ slides_html | safe }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    if (localStorage.getItem('sima_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+    function mostrarCargando() {
+      document.getElementById('btn-gen-slides').disabled = true;
+      document.getElementById('btn-gen-slides').textContent = 'Construyendo .pptx...';
+      document.getElementById('loading-box').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

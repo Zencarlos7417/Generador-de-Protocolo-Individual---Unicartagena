@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Universidad de Cartagena - Educación a Distancia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --udec-blue: #4fa3e8;
+      --udec-darkblue: #1c3b6b;
+      --udec-hero-bg1: #4c35e6;
+      --udec-hero-bg2: #5b46f5;
+      --udec-hero-bg3: #3723c7;
+      --text-color: #2c3e50;
+      --light-gray: #f8fafc;
+      --card-border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-color);
+      background-color: #ffffff;
+      line-height: 1.5;
+    }
+
+    /* TOPBAR / NAVBAR */
+    .navbar {
+      background-color: #5aa1e3;
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: white;
+    }
+
+    .nav-brand img {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .nav-tag {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .btn-login {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.7);
+      color: #ffffff;
+      padding: 8px 22px;
+      border-radius: 30px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn-login:hover {
+      background: #ffffff;
+      color: #2b7bc4;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* HERO SECTION */
+    .hero-section {
+      background: linear-gradient(135deg, #4432d6 0%, #5b48f0 45%, #4229c9 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+      min-height: 580px;
+      display: flex;
+      align-items: center;
+      padding: 60px 40px;
+    }
+
+    .hero-shapes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .hero-shape-bg {
+      position: absolute;
+      opacity: 0.25;
+    }
+
+    .shape-1 { top: 8%; right: 48%; width: 140px; }
+    .shape-2 { bottom: 12%; left: 3%; width: 80px; }
+    .shape-3 { top: 20%; right: 12%; width: 60px; }
+    .shape-dots { position: absolute; left: 140px; top: 180px; width: 16px; opacity: 0.7; }
+    .shape-sparkle { position: absolute; right: 42%; top: 48%; width: 35px; }
+
+    .hero-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-content {
+      padding-right: 20px;
+    }
+
+    .hero-logo-udc {
+      max-width: 190px;
+      height: auto;
+      margin-bottom: 24px;
+      filter: brightness(0) invert(1);
+    }
+
+    .hero-title {
+      font-size: 2.85rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn-more-info {
+      background-color: #ffffff;
+      color: #31219b;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 13px 34px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+      transition: all 0.25s ease;
+      display: inline-block;
+    }
+
+    .btn-more-info:hover {
+      background-color: #f1f5f9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-hero-sima {
+      background-color: rgba(255, 255, 255, 0.18);
+      border: 2px solid white;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 11px 30px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-hero-sima:hover {
+      background-color: white;
+      color: #31219b;
+      transform: translateY(-2px);
+    }
+
+    .hero-image-wrapper {
+      position: relative;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .hero-student-img {
+      max-width: 100%;
+      max-height: 520px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.25));
+    }
+
+    /* SECTION STYLES */
+    .section-title {
+      text-align: center;
+      padding: 60px 20px 20px;
+    }
+
+    .section-title h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #1e3a5f;
+      margin-bottom: 12px;
+    }
+
+    .section-title img.line-separator {
+      max-width: 120px;
+      height: auto;
+    }
+
+    /* PROGRAMS GRID */
+    .programs-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 24px 70px;
+    }
+
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 26px;
+    }
+
+    .program-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #edf2f7;
+    }
+
+    .program-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      border-color: #cbd5e1;
+    }
+
+    .program-card.intro-card {
+      background: transparent;
+      box-shadow: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .program-card.intro-card img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .program-card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #f1f5f9;
+    }
+
+    .program-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .program-card-body h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 14px;
+      min-height: 50px;
+    }
+
+    .program-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: gap 0.2s;
+    }
+
+    .program-link:hover {
+      color: #1d4ed8;
+      gap: 10px;
+    }
+
+    /* CENTROS TUTORIALES */
+    .centros-section {
+      background: #f8fafc;
+      padding: 40px 20px 80px;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .centros-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 26px;
+      padding-top: 20px;
+    }
+
+    .centro-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .centro-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .centro-card img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+    }
+
+    .centro-card-content {
+      padding: 22px;
+    }
+
+    .centro-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+
+    .centro-card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .centro-card li {
+      font-size: 0.95rem;
+      color: #475569;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .centro-card li::before {
+      content: "•";
+      color: #3b82f6;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* CAMPUS EN NUMEROS */
+    .stats-section {
+      padding: 60px 20px 80px;
+      background: white;
+    }
+
+    .stats-grid {
+      max-width: 1100px;
+      margin: 40px auto 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+
+    .stat-item {
+      padding: 24px 16px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      transition: all 0.25s ease;
+    }
+
+    .stat-item:hover {
+      background: #f1f5f9;
+      transform: translateY(-3px);
+    }
+
+    .stat-number {
+      font-size: 2.7rem;
+      font-weight: 800;
+      color: #2b7bc4;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .stat-desc {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    /* SOPORTE / CONTACTO */
+    .contact-section {
+      background: #0f2337;
+      color: white;
+      padding: 60px 24px;
+    }
+
+    .contact-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .contact-info h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 28px;
+      color: white;
+    }
+
+    .contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .contact-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 16px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.2s ease;
+    }
+
+    .contact-card:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: translateX(4px);
+    }
+
+    .contact-card img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .contact-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #60a5fa;
+      display: block;
+    }
+
+    .contact-desc {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      display: block;
+    }
+
+    .contact-image-col {
+      text-align: center;
+    }
+
+    .contact-image-col img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* FOOTER */
+    footer {
+      background: #091724;
+      color: #94a3b8;
+      text-align: center;
+      padding: 24px;
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    footer a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-content {
+        padding-right: 0;
+      }
+      .hero-actions {
+        justify-content: center;
+      }
+      .hero-title {
+        font-size: 2.2rem;
+      }
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .navbar {
+        padding: 8px 16px;
+      }
+      .nav-tag {
+        display: none;
+      }
+      .hero-title {
+        font-size: 1.75rem;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVBAR -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <img src="{{ url_for('static', filename='img/logoudcbar.png') }}" alt="Universidad de Cartagena">
+    </a>
+    <div class="nav-tag">#SoyUdeceista</div>
+    <div class="nav-actions">
+      <a href="/login" class="btn-login">
+        <span>➥ Ingresar</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION (Imagen 1 / primera.jpeg) -->
+  <section class="hero-section">
+    <div class="hero-shapes">
+      <img class="hero-shape-bg shape-1" src="{{ url_for('static', filename='img/04.png') }}" alt="">
+      <img class="hero-shape-bg shape-2" src="{{ url_for('static', filename='img/05.png') }}" alt="">
+      <img class="hero-shape-bg shape-3" src="{{ url_for('static', filename='img/shape_03.png') }}" alt="">
+    </div>
+
+    <div class="hero-container">
+      <div class="hero-content">
+        <img class="hero-logo-udc" src="{{ url_for('static', filename='img/logoudc.png') }}" alt="Escudo Universidad de Cartagena">
+        <h1 class="hero-title">Conoce como estudiar a distancia en la Universidad de Cartagena.</h1>
+        <div class="hero-actions">
+          <a href="/login" class="btn-more-info">Mas info aquí.</a>
+          <a href="/login" class="btn-hero-sima">
+            <span>Acceder a SIMA 2026-2 →</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-image-wrapper">
+        <img class="hero-student-img" src="{{ url_for('static', filename='img/estudianteh.png') }}" alt="Estudiante Universidad de Cartagena">
+      </div>
+    </div>
+  </section>
+
+  <!-- OFERTA DE PROGRAMAS -->
+  <section class="section-title">
+    <h2>Conoce nuestra oferta de programas</h2>
+    <img class="line-separator" src="{{ url_for('static', filename='img/line.png') }}" alt="Separador">
+  </section>
+
+  <div class="programs-container">
+    <div class="programs-grid">
+      <div class="program-card intro-card">
+        <img src="{{ url_for('static', filename='img/pdist.png') }}" alt="Programas a distancia">
+      </div>
+
+      <!-- INGENIERÍA DE SOFTWARE (DESTACADA) -->
+      <div class="program-card" style="border: 2px solid #3b82f6;">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/ingsoft.png') }}" alt="Ingeniería de Software">
+        <div class="program-card-body">
+          <h3>Ingeniería de Software</h3>
+          <a href="/login" class="program-link">Generar Protocolos en SIMA <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/admonempresa.png') }}" alt="Administración de Empresas">
+        <div class="program-card-body">
+          <h3>Administración de Empresas</h3>
+          <a href="/login" class="program-link">Conoce más aquí <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/admonfinanciera.png') }}" alt="Administración Financiera">
+        <div class="program-card-body">
+          <h3>Administración Financiera</h3>
+          <a href="/login" class="program-link">Conoce más aquí <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/admonturisyhote.png') }}" alt="Administración de Empresas Turísticas y Hoteleras">
+        <div class="program-card-body">
+          <h3>Administración Turística y Hotelera</h3>
+          <a href="/login" class="program-link">Conoce más aquí <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/ssta.png') }}" alt="Seguridad y Salud en el Trabajo">
+        <div class="program-card-body">
+          <h3>Seguridad y Salud en el Trabajo</h3>
+          <a href="/login" class="program-link">Conoce más aquí <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/gestionpublica.png') }}" alt="Tecnología en Gestión Pública">
+        <div class="program-card-body">
+          <h3>Tecnología en Gestión Pública</h3>
+          <a href="/login" class="program-link">Conoce más aquí <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="program-card">
+        <img class="program-card-img" src="{{ url_for('static', filename='img/admonsalud.png') }}" alt="Administración Servicios de la Salud">
+        <div class="program-card-body">
+          <h3>Administración Servicios de la Salud</h3>
+          <a href="/login" class="program-link">Conoce más aquí <span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTROS TUTORIALES -->
+  <section class="centros-section">
+    <div class="section-title" style="padding-top: 20px;">
+      <h2>Conoce nuestros centros tutoriales</h2>
+      <img class="line-separator" src="{{ url_for('static', filename='img/line.png') }}" alt="Separador">
+    </div>
+
+    <div class="centros-grid">
+      <!-- MAGANGUÉ (DESTACADO) -->
+      <div class="centro-card" style="border: 2px solid #2b7bc4;">
+        <img src="{{ url_for('static', filename='img/magangue.png') }}" alt="Centro Tutorial Magangué">
+        <div class="centro-card-content">
+          <div class="centro-card-title">Magangué (Tu Centro Actual)</div>
+          <ul>
+            <li><strong>Ingeniería de Software (Semestre V)</strong></li>
+            <li>Administración de Empresas</li>
+            <li>Administración Financiera</li>
+            <li>Seguridad y Salud en el Trabajo</li>
+            <li>Tecnología en Gestión Pública</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="centro-card">
+        <img src="{{ url_for('static', filename='img/cartagena.png') }}" alt="Centro Tutorial Cartagena">
+        <div class="centro-card-content">
+          <div class="centro-card-title">Cartagena</div>
+          <ul>
+            <li>Ingeniería de Software</li>
+            <li>Administración de Empresas</li>
+            <li>Administración Pública</li>
+            <li>Seguridad y Salud en el Trabajo</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="centro-card">
+        <img src="{{ url_for('static', filename='img/mompoxudc.png') }}" alt="Centro Tutorial Mompox">
+        <div class="centro-card-content">
+          <div class="centro-card-title">Mompox</div>
+          <ul>
+            <li>Ingeniería de Software</li>
+            <li>Administración de Empresas</li>
+            <li>Administración de Servicios de Salud</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMPUS EN NÚMEROS -->
+  <section class="stats-section">
+    <div class="section-title" style="padding-top: 0;">
+      <h2>Campus en números</h2>
+      <img class="line-separator" src="{{ url_for('static', filename='img/line.png') }}" alt="Separador">
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">+2000</div>
+        <div class="stat-desc">Aulas distribuidas en 6 centros tutoriales en 2 departamentos.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">+3000</div>
+        <div class="stat-desc">Egresados formados con excelencia académica.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">7</div>
+        <div class="stat-desc">Programas habilitados en modalidad a distancia.</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">+11 MIL</div>
+        <div class="stat-desc">Usuarios están ahora participando de nuestras carreras.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO / SOPORTE -->
+  <section class="contact-section">
+    <div class="contact-container">
+      <div class="contact-info">
+        <h2>Para soporte técnico escríbenos a:</h2>
+        <div class="contact-list">
+          <a href="mailto:carlosfelipevanegasvanegas55@gmail.com" class="contact-card" target="_blank">
+            <img src="{{ url_for('static', filename='img/correo.webp') }}" alt="Correo">
+            <div>
+              <span class="contact-title">Correo Electrónico</span>
+              <span class="contact-desc">carlosfelipevanegasvanegas55@gmail.com</span>
+            </div>
+          </a>
+
+          <a href="https://api.whatsapp.com/send?phone=573207545995" class="contact-card" target="_blank">
+            <img src="{{ url_for('static', filename='img/whatsapp.png') }}" alt="WhatsApp">
+            <div>
+              <span class="contact-title">WhatsApp Soporte</span>
+              <span class="contact-desc">(+57) 320 754 5995</span>
+            </div>
+          </a>
+
+          <a href="https://meet.google.com/xdr-vgym-oxz" class="contact-card" target="_blank">
+            <img src="{{ url_for('static', filename='img/mesa.png') }}" alt="Mesa de Ayuda">
+            <div>
+              <span class="contact-title">Mesa de Ayuda Virtual</span>
+              <span class="contact-desc">Atención en línea: Martes a Viernes 1:00 p.m. - 8:00 p.m.</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-image-col">
+        <img src="{{ url_for('static', filename='img/Captura.png') }}" alt="Campus Virtual UdeC">
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Universidad de Cartagena - Centro Tecnológico para la Formación Virtual y a Distancia (CTEV)</p>
+    <p style="margin-top: 6px; font-size: 0.85rem;">Sistema de Información de Modelos Académicos (SIMA) | <a href="/login">Acceder a SIMA</a></p>
+  </footer>
+
+  <!-- BOTÓN FLOTANTE DE WHATSAPP -->
+  <a href="https://wa.me/573207545995?text=Hola%2C%20necesito%20ayuda%20con%20SIMA%20UdeC" target="_blank" class="wa-float" title="Chatea con nosotros por WhatsApp">
+    <svg viewBox="0 0 32 32" width="32" height="32" fill="#fff">
+      <path d="M16 0C7.164 0 0 7.164 0 16c0 2.818.739 5.569 2.144 7.994L0 32l8.226-2.144A15.936 15.936 0 0 0 16 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm0 29.25a13.23 13.23 0 0 1-6.75-1.848l-.484-.287-4.879 1.272 1.3-4.759-.316-.488A13.21 13.21 0 0 1 2.75 16C2.75 8.693 8.693 2.75 16 2.75S29.25 8.693 29.25 16 24.307 29.25 16 29.25zm7.396-9.842c-.405-.203-2.397-1.183-2.768-1.319-.371-.135-.641-.203-.911.203-.27.405-1.047 1.319-1.283 1.589-.236.27-.473.304-.878.101-.405-.203-1.707-.629-3.252-2.006-1.203-1.072-2.014-2.397-2.25-2.802-.236-.405-.025-.623.178-.825.183-.182.405-.473.608-.709.203-.236.27-.405.405-.676.135-.27.068-.507-.034-.709-.101-.203-.911-2.198-1.249-3.01-.329-.789-.663-.682-.911-.694l-.779-.018c-.27 0-.709.101-1.08.507-.371.405-1.418 1.385-1.418 3.378s1.451 3.92 1.654 4.19c.203.27 2.856 4.358 6.916 6.109.966.416 1.72.666 2.308.852.97.309 1.852.265 2.55.161.778-.116 2.397-.98 2.733-1.928.337-.947.337-1.758.236-1.928-.101-.169-.371-.27-.776-.473z"/>
+    </svg>
+    <span class="wa-tip">¿Dudas? ¡Escríbenos!</span>
+  </a>
+  <style>
+    .wa-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #25D366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+      z-index: 999;
+      transition: transform 0.2s ease;
+      text-decoration: none;
+    }
+    .wa-float:hover { transform: scale(1.08); }
+    .wa-float::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #25D366;
+      animation: wa-pulse 2s ease-out infinite;
+      z-index: -1;
+    }
+    @keyframes wa-pulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .wa-tip {
+      position: absolute;
+      right: 66px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #fff;
+      color: #1e293b;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .wa-float:hover .wa-tip { opacity: 1; }
+  </style>
+
+</body>
+</html>

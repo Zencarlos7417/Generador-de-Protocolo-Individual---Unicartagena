@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Área personal | SIMA CTEV - Universidad de Cartagena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #2b7bc4;
+      --active-blue: #1c7cd6;
+      --nav-bg: #4a90e2;
+      --bg-page: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --success-green: #22c55e;
+    }
+
+    body.dark-mode {
+      --bg-page: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      min-height: 100vh;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* TOP NAVBAR (tercera.jpeg) */
+    .dashboard-nav {
+      background-color: #5298e9;
+      padding: 0 28px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 100%;
+    }
+
+    .ctev-nav-brand img {
+      height: 42px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    .ctev-nav-brand img.logo-recursos {
+      height: 62px;
+      width: 62px;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: none;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      height: 100%;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0 4px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #ffffff;
+    }
+
+    .nav-links a.active {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .nav-links a.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background-color: #ffffff;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .nav-user-dropdown {
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.95;
+    }
+
+    .nav-icon-badge {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+    }
+
+    .badge-counter {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background-color: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 12px;
+    }
+
+    .user-avatar-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      color: #2b7bc4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      cursor: pointer;
+    }
+
+    .theme-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    /* MAIN CONTAINER */
+    .dashboard-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 30px 28px 70px;
+    }
+
+    .page-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-primary:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    }
+
+    /* STATS ROW (tercera.jpeg) */
+    .stats-card-row {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 24px 36px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 36px;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-metric-box {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      border: 1.5px solid #22c55e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22c55e;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .stat-number-val {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
+    .stat-label-val {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* SECTION VISTA GENERAL DE CURSO */
+    .course-section-header {
+      margin-bottom: 18px;
+    }
+
+    .section-heading {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+    }
+
+    /* COURSE TABS */
+    .course-tabs-bar {
+      display: flex;
+      gap: 24px;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: 22px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 10px 4px;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .tab-btn.active {
+      color: var(--primary-blue);
+      font-weight: 700;
+    }
+
+    .tab-btn.active::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary-blue);
+      border-radius: 3px;
+    }
+
+    /* CONTROLS ROW */
+    .course-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
+    }
+
+    .controls-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .select-order {
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: var(--card-bg);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .search-course-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-course-input {
+      padding: 8px 14px 8px 34px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: var(--card-bg);
+      color: var(--text-main);
+      width: 240px;
+    }
+
+    .search-icon-pos {
+      position: absolute;
+      left: 10px;
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
+
+    .view-toggles {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .view-btn.active {
+      color: var(--primary-blue);
+      border-color: var(--primary-blue);
+    }
+
+    .link-progress-all {
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* COURSE CARDS GRID (tercera.jpeg) */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 24px;
+    }
+
+    .course-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+      border-color: #cbd5e1;
+    }
+
+    .course-card-thumb-wrap {
+      position: relative;
+      height: 140px;
+      width: 100%;
+      background-color: #1e293b;
+      overflow: hidden;
+    }
+
+    .course-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .course-card:hover .course-card-img {
+      transform: scale(1.04);
+    }
+
+    .card-options-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      border: none;
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #334155;
+    }
+
+    .course-card-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .badge-semester {
+      display: inline-block;
+      background-color: #f1f5f9;
+      color: #475569;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+      align-self: flex-start;
+    }
+
+    .course-card-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 12px;
+      min-height: 48px;
+    }
+
+    .course-teacher-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .progress-section {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .activities-completed-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 6px;
+      background-color: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #22c55e;
+      border-radius: 10px;
+    }
+
+    .progress-percentage-text {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 14px;
+    }
+
+    .course-card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .btn-view-course {
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #bfdbfe;
+      background-color: #eff6ff;
+      transition: all 0.2s;
+    }
+
+    .btn-view-course:hover {
+      background-color: #dbeafe;
+    }
+
+    .btn-gen-protocol {
+      background: linear-gradient(135deg, #2b7bc4, #1d4ed8);
+      color: white;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(43, 123, 196, 0.25);
+    }
+
+    .btn-gen-protocol:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-1px);
+    }
+
+    /* MODAL GENERADOR DE PROTOCOLO */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 20px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: var(--card-bg);
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      max-height: calc(100vh - 48px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      animation: modalFadeIn 0.25s ease;
+      margin: auto 0;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #1e3a5f, #2b7bc4);
+      color: white;
+      padding: 20px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .btn-close-modal:hover {
+      opacity: 1;
+    }
+
+    .modal-body {
+      padding: 26px;
+      overflow-y: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+      scrollbar-width: thin;
+    }
+
+    .modal-body::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 8px;
+    }
+
+    .course-badge-info {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .course-badge-info strong {
+      display: block;
+      color: #1e3a5f;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    .course-badge-info span {
+      font-size: 0.85rem;
+      color: #3b82f6;
+    }
+
+    .form-group-modal {
+      margin-bottom: 20px;
+    }
+
+    .form-label-modal {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .select-protocol-type {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: var(--text-main);
+      background-color: var(--card-bg);
+      cursor: pointer;
+    }
+
+    /* DRAG & DROP ZONE */
+    .dropzone-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f8fafc;
+      transition: all 0.2s;
+    }
+
+    .dropzone-box.dragover {
+      border-color: var(--primary-blue);
+      background-color: #eff6ff;
+    }
+
+    .dropzone-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    .dropzone-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .dropzone-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .file-selected-display {
+      display: none;
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: #e0f2fe;
+      border: 1px solid #7dd3fc;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      color: #0369a1;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .file-selected-display.active {
+      display: block;
+    }
+
+    .btn-submit-generate {
+      width: 100%;
+      background: linear-gradient(135deg, #2b7bc4, #1d4ed8);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+      box-shadow: 0 4px 12px rgba(43, 123, 196, 0.35);
+      transition: all 0.2s;
+    }
+
+    .btn-submit-generate:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit-generate:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .api-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      margin-top: 14px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .processing-steps {
+      display: none;
+      margin-top: 16px;
+      padding: 14px;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #475569;
+    }
+
+    .processing-steps.active {
+      display: block;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #2b7bc4;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* FLASH ALERTS */
+    .flash-alert {
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .flash-error {
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .stats-card-row {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 20px;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-card-row {
+        grid-template-columns: 1fr;
+      }
+      .courses-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    /* Avatar con menú desplegable */
+    .avatar-wrap {
+      position: relative;
+    }
+
+    .avatar-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 2px;
+    }
+
+    .avatar-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      min-width: 220px;
+      overflow: hidden;
+      z-index: 200;
+    }
+
+    .avatar-wrap.open .avatar-dropdown {
+      display: block;
+    }
+
+    .avatar-dropdown a {
+      display: block;
+      padding: 11px 18px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.92rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.15s;
+    }
+
+    .avatar-dropdown a:last-child {
+      border-bottom: none;
+    }
+
+    .avatar-dropdown a:hover {
+      background: #f1f5f9;
+    }
+
+    body.dark-mode .avatar-dropdown a:hover {
+      background: #334155;
+    }
+
+    .avatar-dropdown .menu-sep {
+      border-bottom: 1px solid var(--border-color);
+      margin: 0;
+    }
+
+    .menu-lang {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 18px;
+      font-size: 0.92rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .lang-opts {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lang-opts button {
+      border: 1px solid var(--border-color);
+      background: var(--bg-page);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .lang-opts button.active {
+      background: #2b7bc4;
+      border-color: #2b7bc4;
+      color: #fff;
+    }
+
+    /* Floating Tutor button */
+    .floating-tutor-btn {
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+      z-index: 99;
+      transition: all 0.25s ease;
+    }
+
+    .floating-tutor-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.45);
+      background: linear-gradient(135deg, #6d28d9, #4338ca);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVBAR (tercera.jpeg) -->
+  <nav class="dashboard-nav">
+    <div class="nav-left">
+      <a href="/" class="ctev-nav-brand" title="Recursos Académicos CTEV - U. de Cartagena">
+        <img src="{{ url_for('static', filename='img/logo_recursos.png') }}" alt="Recursos Académicos CTEV" class="logo-recursos">
+      </a>
+      <ul class="nav-links">
+        <li><a href="/" data-i18n="nav_home">Página Principal</a></li>
+        <li><a href="/dashboard" class="active" data-i18n="nav_area">Área personal</a></li>
+        <li><a href="https://meet.google.com/xdr-vgym-oxz" target="_blank" data-i18n="nav_help">Mesa de ayuda</a></li>
+        <li><a href="#" data-i18n="nav_reports">Reportes</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-user-dropdown">
+        <span data-i18n="nav_recent">Recientes ▾</span>
+      </div>
+
+      <a href="#" class="nav-icon-badge" title="Notificaciones">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="badge-counter">73</span>
+      </a>
+
+      <a href="#" class="nav-icon-badge" title="Mensajes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </a>
+
+      <div class="avatar-wrap" id="avatar-wrap">
+        <button class="avatar-btn" id="avatar-btn" title="Menú de {{ perfil.nombre_mostrado or usuario or 'CV' }}">
+          <span class="user-avatar-circle">{% if perfil and perfil.avatar %}{{ perfil.avatar }}{% else %}{{ (usuario or 'CV')[:2]|upper }}{% endif %}</span>
+          <span>▾</span>
+        </button>
+        <div class="avatar-dropdown" id="avatar-dropdown">
+          <a href="https://meet.google.com/xdr-vgym-oxz" target="_blank" data-i18n="menu_help">Mesa de ayuda</a>
+          <a href="#" data-i18n="menu_reports">Reportes</a>
+          <a href="/perfil" data-i18n="menu_profile">Perfil</a>
+          <a href="/historial" data-i18n="menu_grades">Calificaciones</a>
+          <a href="#" data-i18n="menu_calendar">Calendario</a>
+          <a href="#" data-i18n="menu_prefs">Preferencias</a>
+          <div class="menu-lang">
+            <span data-i18n="menu_lang">Idioma</span>
+            <span class="lang-opts">
+              <button type="button" data-lang="es" title="Español">ES</button>
+              <button type="button" data-lang="en" title="English">EN</button>
+            </span>
+          </div>
+          <div class="menu-sep"></div>
+          <a href="/logout" data-i18n="menu_logout">Cerrar sesión</a>
+        </div>
+      </div>
+
+
+      <div class="theme-toggle-wrap" id="btn-theme-toggle" title="Cambiar tema claro/oscuro">
+        <span>🌙</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="dashboard-container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="flash-alert flash-error">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+      <div class="page-header-row">
+        <h1 class="page-title" data-i18n="page_title">Área personal</h1>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="/actividad" class="btn-action-primary" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);">
+            <span data-i18n="btn_activity">🛠️ Desarrollar Actividad (Multi-IA)</span>
+          </a>
+          <a href="/quiz" class="btn-action-primary" style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);">
+            <span data-i18n="btn_quiz">📝 Examen / Quiz (20 P)</span>
+          </a>
+          <a href="/tutor" class="btn-action-primary" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);">
+            <span data-i18n="btn_tutor">🤖 Tutor IA (Chat)</span>
+          </a>
+          <a href="/diapositivas" class="btn-action-primary" style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+            <span data-i18n="btn_slides">📊 Generar Diapositivas (IA)</span>
+          </a>
+
+          <button class="btn-action-primary" onclick="openProtocolModal('LIBRE')">
+            <span data-i18n="btn_protocol">⚙️ Generar Nuevo Protocolo</span>
+          </button>
+          {% if rol == 'admin' %}
+          <a href="/admin/materias" class="btn-action-primary" style="background: linear-gradient(135deg, #0f766e, #115e59); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);">
+            <span>🛠️ Administrar materias</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+    <!-- STATS ROW (tercera.jpeg) -->
+    <section class="stats-card-row">
+      <div class="stat-metric-box">
+        <div class="stat-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number-val">7</div>
+          <div class="stat-label-val">Cursos inscritos</div>
+        </div>
+      </div>
+
+      <div class="stat-metric-box">
+        <div class="stat-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"></polyline>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number-val">0</div>
+          <div class="stat-label-val">Cursos completados</div>
+        </div>
+      </div>
+
+      <div class="stat-metric-box">
+        <div class="stat-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <polyline points="9 11 12 14 22 4"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number-val">72</div>
+          <div class="stat-label-val">Actividades completadas</div>
+        </div>
+      </div>
+
+      <div class="stat-metric-box">
+        <div class="stat-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number-val">174</div>
+          <div class="stat-label-val">Actividades pendientes</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MIS DOCUMENTOS EN LA NUBE -->
+    <section class="course-section-header" style="margin-top:26px;">
+      <h2 class="section-heading">Mis documentos y notas
+        {% if supabase_ok %}
+        <span style="font-size:.75rem; background:#e8f5e9; color:#2e7d32; padding:3px 10px; border-radius:20px; vertical-align:middle;">Supabase conectado • {{ usuario }}</span>
+        {% else %}
+        <span style="font-size:.75rem; background:#fef2f2; color:#b91c1c; padding:3px 10px; border-radius:20px; vertical-align:middle;">Modo local • configura SUPABASE_URL/KEY para la nube</span>
+        {% endif %}
+      </h2>
+      {% if historial or notas %}
+      <div class="controls-left" style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:14px 16px;">
+          <strong>📄 Últimos protocolos</strong>
+          {% if historial %}
+          <ul style="margin:8px 0 0 18px; font-size:.88rem;">
+            {% for p in historial[:5] %}
+            <li>{{ p.nombre_archivo }} <span style="color:var(--text-muted);">({{ p.curso }} • U{{ p.unidad }})</span></li>
+            {% endfor %}
+          </ul>
+          {% else %}<p style="font-size:.88rem; color:var(--text-muted);">Sin protocolos aún.</p>{% endif %}
+        </div>
+        <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; padding:14px 16px;">
+          <strong>📝 Últimas notas de quiz</strong>
+          {% if notas %}
+          <ul style="margin:8px 0 0 18px; font-size:.88rem;">
+            {% for n in notas[:5] %}
+            <li>{{ n.curso }} • U{{ n.unidad }}: <strong>{{ n.nota }}/5.0</strong> ({{ n.correctas }}/{{ n.total }})</li>
+            {% endfor %}
+          </ul>
+          {% else %}<p style="font-size:.88rem; color:var(--text-muted);">Sin notas aún.</p>{% endif %}
+        </div>
+      </div>
+      <p style="margin-top:10px;"><a href="/historial" class="link-progress-all">Ver historial completo ›</a></p>
+      {% else %}
+      <p style="font-size:.9rem; color:var(--text-muted);">Tus protocolos y notas de quiz aparecerán aquí cuando actives Supabase. <a href="/historial" class="link-progress-all">Ver historial ›</a></p>
+      {% endif %}
+    </section>
+
+    <!-- VISTA GENERAL DE CURSO -->
+    <section class="course-section-header">
+      <h2 class="section-heading" data-i18n="sec_courses">Vista general de curso</h2>
+
+      <div class="course-tabs-bar">
+        <button class="tab-btn active" data-i18n="tab_all">Todos</button>
+        <button class="tab-btn" data-i18n="tab_progress">En progreso</button>
+        <button class="tab-btn" data-i18n="tab_future">Futuros</button>
+        <button class="tab-btn" data-i18n="tab_past">Pasados</button>
+        <button class="tab-btn" data-i18n="tab_starred">Destacados</button>
+        <button class="tab-btn" data-i18n="tab_hidden">Eliminado de la vista</button>
+      </div>
+
+      <div class="course-controls-row">
+        <div class="controls-left">
+          <select class="select-order">
+            <option>Ordenar por nombre del curso ▾</option>
+            <option>Ordenar por último accedido ▾</option>
+          </select>
+
+          <div class="search-course-wrap">
+            <span class="search-icon-pos">🔍</span>
+            <input type="text" class="search-course-input" placeholder="Buscar curso...">
+          </div>
+
+          <div class="view-toggles">
+            <button class="view-btn active" title="Vista cuadrícula">⊞</button>
+            <button class="view-btn" title="Vista lista">☰</button>
+          </div>
+        </div>
+
+        <a href="#" class="link-progress-all">Ver todos miscursos en progreso ›</a>
+      </div>
+    </section>
+
+    <!-- COURSE CARDS GRID (tercera.jpeg) -->
+    <section class="courses-grid">
+      <!-- 1. CIENCIA DE DATOS I -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_ciencia_datos.jpg') }}" alt="Ciencia de Datos I" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - CIENCIA DE DATOS I - G1 - 2026 - 2</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> JOSE LUIS TRESPALACIO MULET
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">35 de 35 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 100%;"></div>
+            </div>
+            <div class="progress-percentage-text">100% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('CIENCIA DE DATOS I - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 2. DESARROLLO DE APPS -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_desarrollo_apps.jpg') }}" alt="Desarrollo de Apps" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - DESARROLLO DE APPS - G1 - 2026 - 2</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> ELKIN J NAVARRO OSORIO
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">8 de 35 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 25%;"></div>
+            </div>
+            <div class="progress-percentage-text">25% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('DESARROLLO DE APPS - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3. MATEMÁTICAS DISCRETAS -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_matematicas_discretas.jpg') }}" alt="Matemáticas Discretas" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - MATEMÁTICAS DISCRETAS - G1 - 2026 - 2</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> ALEXANDER BENAVIDES ACUNA
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">7 de 35 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 22%;"></div>
+            </div>
+            <div class="progress-percentage-text">22% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('MATEMÁTICAS DISCRETAS - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. METODOLOGÍA DE LA INVESTIGACIÓN -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_metodologia_investigacion.jpg') }}" alt="Metodología de la Investigación" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - METODOLOGÍA DE LA INVESTIGACIÓN - G1 - 2026 - 2</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> BIVIAN ROBLES ACOSTA
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">10 de 35 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 32%;"></div>
+            </div>
+            <div class="progress-percentage-text">32% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('METODOLOGÍA DE LA INVESTIGACIÓN - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 5. PROBABILIDAD Y ESTADÍSTICA -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_probabilidad.jpg') }}" alt="Probabilidad y Estadística" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - PROBABILIDAD Y ESTADÍSTICA - G1 - 2026 - 2</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> EVELIN BARCO LLERENA
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">12 de 35 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 38%;"></div>
+            </div>
+            <div class="progress-percentage-text">38% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('PROBABILIDAD Y ESTADÍSTICA - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 6. SISTEMAS DIGITALES -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_sistemas_digitales.jpg') }}" alt="Sistemas Digitales" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - SISTEMAS DIGITALES - G1 - 2026 - 2</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> RANFIS ENRIQUE IBARRA DAVILA
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">35 de 35 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 100%;"></div>
+            </div>
+            <div class="progress-percentage-text">100% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('SISTEMAS DIGITALES - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 7. TEORÍAS DE AUTÓMATAS -->
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename='img/course_automatas.jpg') }}" alt="Teorías de Autómatas" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">SEMESTRE V</span>
+          <h3 class="course-card-title">INGENIERÍA DE SOFTWARE - MAGANGUÉ - TEORÍAS DE AUTÓMATAS Y LENGUAJES...</h3>
+          
+          <div class="course-teacher-info">
+            <span>👤</span> JOSE ALDEMAR PEREZ OLIVARES
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">11 de 36 actividades completadas</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: 30%;"></div>
+            </div>
+            <div class="progress-percentage-text">30% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('TEORÍAS DE AUTÓMATAS Y LENGUAJES - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- MATERIAS NUEVAS PUBLICADAS POR EL ADMIN -->
+      {% for c in cursos_nuevos %}
+      <article class="course-card">
+        <div class="course-card-thumb-wrap">
+          <img src="{{ url_for('static', filename=c.img) }}" alt="{{ c.clave }}" class="course-card-img">
+          <button class="card-options-btn" title="Opciones">⋮</button>
+        </div>
+        <div class="course-card-body">
+          <span class="badge-semester">{{ c.titulo.split(' - ')[1] if ' - ' in c.titulo else 'NUEVA' }}</span>
+          <h3 class="course-card-title">{{ c.titulo }}</h3>
+
+          <div class="course-teacher-info">
+            <span>👤</span> {{ c.docente or 'POR ASIGNAR' }}
+          </div>
+
+          <div class="progress-section">
+            <div class="activities-completed-text">{{ c.actividades }}</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" style="width: {{ c.porcentaje }}%;"></div>
+            </div>
+            <div class="progress-percentage-text">{{ c.porcentaje }}% Curso completado</div>
+
+            <div class="course-card-actions">
+              <a href="#" class="btn-view-course">Ver curso</a>
+              <button class="btn-gen-protocol" onclick="openProtocolModal('{{ c.clave }} - G1 - 2026 - 2')">
+                <span>📄 Generar Protocolo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+  </main>
+
+  <!-- MODAL PARA GENERAR PROTOCOLO -->
+  <div class="modal-backdrop" id="protocol-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><span>📝</span> Generador Automático de Protocolos</h3>
+        <button class="btn-close-modal" onclick="closeProtocolModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="course-badge-info">
+          <strong id="modal-course-title">INGENIERÍA DE SOFTWARE</strong>
+          <span>Semestre V • Centro Tutorial Magangué</span>
+        </div>
+
+        <form action="/generar" method="POST" enctype="multipart/form-data" id="modal-gen-form">
+          <input type="hidden" name="course_name" id="hidden-course-name" value="">
+
+          <div class="form-group-modal">
+            <label class="form-label-modal" for="modal-materia">Materia o lectura</label>
+            <select id="modal-materia" class="select-protocol-type" onchange="alCambiarMateriaModal()">
+              {% for c in cursos %}
+              <option value="{{ c.clave }} - G1 - 2026 - 2">{{ c.clave }}</option>
+              {% endfor %}
+              <option value="LIBRE">📂 OTRA LECTURA / MÓDULO LIBRE (subir PDF)</option>
+            </select>
+          </div>
+
+          <div class="form-group-modal">
+            <label class="form-label-modal" for="modal-formato-salida">Formato de salida de la IA</label>
+            <select name="formato_salida" id="modal-formato-salida" class="select-protocol-type">
+              <option value="estandar" selected>Protocolo Académico Estándar (9 secciones en prosa)</option>
+              <option value="esquema">Mapa Conceptual / Resumen en Esquema Jerárquico (Viñetas estructuradas)</option>
+            </select>
+          </div>
+
+          <div class="form-group-modal">
+            <label class="form-label-modal" for="modal-unidad-num">Unidad de la lectura o módulo</label>
+            <select name="unidad_num" id="modal-unidad-num" class="select-protocol-type" onchange="actualizarNombresUnidades()">
+              <option value="1" selected>Unidad 1</option>
+              <option value="2">Unidad 2</option>
+              <option value="3">Unidad 3</option>
+              <option value="4">Unidad 4</option>
+            </select>
+            <div id="unidad-nombre-desc" style="font-size: 0.83rem; color: var(--primary-blue); font-weight: 700; margin-top: 6px;"></div>
+          </div>
+
+          <div class="form-group-modal">
+            <label class="form-label-modal" for="modal-tipo-plantilla">Tipo de protocolo a generar</label>
+            <select name="tipo_plantilla" id="modal-tipo-plantilla" class="select-protocol-type">
+              <option value="individual" selected>Protocolo Individual (plantilla institucional)</option>
+              <option value="colaborativo">Protocolo Colaborativo (plantilla de equipo CIPAS)</option>
+            </select>
+          </div>
+
+          <div class="form-group-modal">
+            <label class="form-label-modal">Subir PDF del módulo o unidad (opcional si usas los precargados)</label>
+            <div class="dropzone-box" id="modal-dropzone">
+              <input type="file" name="pdf" id="modal-pdf-file" accept="application/pdf" style="display:none;">
+              <div class="dropzone-icon">📁</div>
+              <div class="dropzone-text">Arrastra el archivo PDF aquí o haz clic para seleccionarlo</div>
+              <div class="dropzone-hint">Si dejas esto vacío, el sistema buscará el PDF precargado de la unidad en la carpeta 'modulos/'.</div>
+              <div class="file-selected-display" id="modal-file-selected"></div>
+            </div>
+          </div>
+
+          <div class="api-status-badge" id="api-badge">
+            <span class="status-dot"></span>
+            <span id="api-badge-text">Conectado a Google Gemini AI</span>
+          </div>
+
+          <div class="processing-steps" id="proc-steps">
+            <div class="step-item"><span class="spinner"></span> <span>Extrayendo texto del PDF...</span></div>
+            <div class="step-item" style="opacity: 0.7;"><span>🤖</span> <span>Analizando las 9 secciones académicas con Gemini...</span></div>
+            <div class="step-item" style="opacity: 0.7;"><span>📄</span> <span>Llenando plantilla oficial Word (.docx)...</span></div>
+          </div>
+
+          <button type="submit" class="btn-submit-generate" id="modal-btn-submit">
+            <span>⚡ Generar y Descargar Word (.docx)</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const UNIDADES_MAP = {
+      "CIENCIA DE DATOS": {
+        "1": "Unidad 1 - INTRODUCCION A LA CIENCIA DE DATOS",
+        "2": "Unidad 2 - ANÁLISIS EXPLORATORIO DE DATOS",
+        "3": "Unidad 3 - CONEXIÓN A ORÍGENES DE DATOS, LIMPIEZA Y TRANSFORMACIÓN(ETL)",
+        "4": "Unidad 4 - MODELADO DE DATOS (ESTRELLA Y COPO DE NIEVE)"
+      },
+      "DESARROLLO DE APPS": {
+        "1": "Unidad 1 - Fundamentos de desarrollo de App´s",
+        "2": "Unidad 2 - Diseño de aplicaciones en Android Studio",
+        "3": "Unidad 3 - Framework de desarrollo de App's con Flutter",
+        "4": "Unidad 4 - Servicios API desde el framework flutter"
+      },
+      "MATEMÁTICAS DISCRETAS": {
+        "1": "Unidad 1 - EL LENGUAJE DE LAS MATEMATICAS",
+        "2": "Unidad 2 - TEORIA DE GRAFOS",
+        "3": "Unidad 3 - LOGICA E INFERENCIA LOGICA",
+        "4": "Unidad 4 - LOGICA DE PREDICADOS"
+      },
+      "PROBABILIDAD Y ESTADÍSTICA": {
+        "1": "Unidad 1 - Generalidades de la Estadistica",
+        "2": "Unidad 2 - Introducción a la Probabilidad",
+        "3": "Unidad 3 - Muestreos Estadísticos",
+        "4": "Unidad 4 - Permutaciones, Combinaciones, Distribución, Proyecciones y Métodos de Minino Cuadrado"
+      },
+      "SISTEMAS DIGITALES": {
+        "1": "Unidad 1 - Introducción y Representación de Datos",
+        "2": "Unidad 2 - Lógica Digital y Álgebra Booleana",
+        "3": "Unidad 3 - Circuitos Combinacionales",
+        "4": "Unidad 4 - Circuitos Secuenciales"
+      },
+      "TEORÍAS DE AUTÓMATAS": {
+        "1": "Unidad 1 - Autómatas: Historia, Componentes de un Compilador",
+        "2": "Unidad 2 - Analizador Léxico: Autómatas de Estado Finito y Expresiones Regulares",
+        "3": "Unidad 3 - Analizador Sintáctico (Gramática BNF)",
+        "4": "Unidad 4 - Autómatas de Pila y Máquina de Turing"
+      },
+      "METODOLOGÍA": {
+        "1": "Unidad 1 - El Conocimiento",
+        "2": "Unidad 2 - Método Científico",
+        "3": "Unidad 3 - Justificación de la Investigación",
+        "4": "Unidad 4 - Operalización de Variables"
+      }
+    };
+
+    // Unidades de materias nuevas creadas por el admin (Supabase)
+    try {
+      Object.assign(UNIDADES_MAP, {{ unidades_extra|tojson|safe }});
+    } catch (e) {}
+
+    function materiaActualModal() {
+      const sel = document.getElementById('modal-materia');
+      return sel ? sel.value : hiddenCourse.value;
+    }
+
+    function actualizarNombresUnidades() {
+      const courseTitle = materiaActualModal().toUpperCase();
+      const selectUnidad = document.getElementById('modal-unidad-num');
+      const descDiv = document.getElementById('unidad-nombre-desc');
+      const unidadVal = selectUnidad.value;
+
+      if (courseTitle === 'LIBRE') {
+        const genericas = { "1": "Unidad 1", "2": "Unidad 2", "3": "Unidad 3", "4": "Unidad 4" };
+        for (let i = 0; i < selectUnidad.options.length; i++) {
+          let optVal = selectUnidad.options[i].value;
+          if (genericas[optVal]) {
+            selectUnidad.options[i].text = genericas[optVal];
+          }
+        }
+        descDiv.textContent = "📂 Lectura libre: sube el PDF del módulo o lectura en el campo de abajo.";
+        hiddenCourse.value = 'LIBRE';
+        modalTitle.textContent = 'OTRA LECTURA / MÓDULO LIBRE';
+        return;
+      }
+
+      let matchedKey = Object.keys(UNIDADES_MAP).find(k => courseTitle.includes(k));
+      if (!matchedKey) matchedKey = "CIENCIA DE DATOS"; // default fallback
+
+      const names = UNIDADES_MAP[matchedKey];
+
+      // Update options text
+      for (let i = 0; i < selectUnidad.options.length; i++) {
+        let optVal = selectUnidad.options[i].value;
+        if (names[optVal]) {
+          selectUnidad.options[i].text = names[optVal];
+        }
+      }
+      descDiv.textContent = "📍 " + (names[unidadVal] || "");
+      hiddenCourse.value = materiaActualModal();
+      modalTitle.textContent = materiaActualModal();
+    }
+
+    function alCambiarMateriaModal() {
+      actualizarNombresUnidades();
+    }
+
+    // Modal logic
+    const modal = document.getElementById('protocol-modal');
+    const modalTitle = document.getElementById('modal-course-title');
+    const hiddenCourse = document.getElementById('hidden-course-name');
+    const dropzone = document.getElementById('modal-dropzone');
+    const fileInput = document.getElementById('modal-pdf-file');
+    const fileSelected = document.getElementById('modal-file-selected');
+    const genForm = document.getElementById('modal-gen-form');
+    const submitBtn = document.getElementById('modal-btn-submit');
+    const procSteps = document.getElementById('proc-steps');
+    const themeBtn = document.getElementById('btn-theme-toggle');
+
+    function openProtocolModal(courseName) {
+      const sel = document.getElementById('modal-materia');
+      if (!courseName || courseName === 'LIBRE') {
+        // Modo libre: el usuario elige la materia o sube cualquier lectura
+        sel.value = 'LIBRE';
+      } else {
+        // Preseleccionar la materia de la tarjeta que abrió el modal
+        let found = false;
+        const up = courseName.toUpperCase();
+        for (let i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value !== 'LIBRE' && up.includes(sel.options[i].value.split(' - ')[0])) {
+            sel.value = sel.options[i].value;
+            found = true;
+            break;
+          }
+        }
+        if (!found) sel.value = 'LIBRE';
+      }
+      actualizarNombresUnidades();
+      modal.classList.add('active');
+    }
+
+    function closeProtocolModal() {
+      modal.classList.remove('active');
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeProtocolModal();
+    });
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        updateSelectedFileDisplay(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        updateSelectedFileDisplay(fileInput.files[0]);
+      }
+    });
+
+    function updateSelectedFileDisplay(file) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+      fileSelected.textContent = `✓ Archivo cargado: ${file.name} (${sizeMb} MB)`;
+      fileSelected.classList.add('active');
+    }
+
+    genForm.addEventListener('submit', () => {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Procesando con IA... Por favor espera (15-30s)';
+      procSteps.classList.add('active');
+    });
+
+    // Dark mode with persistence
+    const savedTheme = localStorage.getItem('sima_theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      themeBtn.innerHTML = '☀️';
+    }
+
+    themeBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('sima_theme', isDark ? 'dark' : 'light');
+      themeBtn.innerHTML = isDark ? '☀️' : '🌙';
+    });
+
+    // Menú desplegable del avatar (Mesa de ayuda, Reportes, Perfil, ...)
+    const avatarWrap = document.getElementById('avatar-wrap');
+    const avatarBtn = document.getElementById('avatar-btn');
+    if (avatarBtn && avatarWrap) {
+      avatarBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        avatarWrap.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!avatarWrap.contains(e.target)) avatarWrap.classList.remove('open');
+      });
+    }
+
+    // Idioma ES/EN persistente
+    const I18N = {
+      es: {
+        nav_home: 'Página Principal', nav_area: 'Área personal', nav_help: 'Mesa de ayuda',
+        nav_reports: 'Reportes', nav_recent: 'Recientes ▾',
+        menu_help: 'Mesa de ayuda', menu_reports: 'Reportes', menu_profile: 'Perfil',
+        menu_grades: 'Calificaciones', menu_calendar: 'Calendario', menu_prefs: 'Preferencias',
+        menu_lang: 'Idioma', menu_logout: 'Cerrar sesión',
+        page_title: 'Área personal',
+        btn_activity: '🛠️ Desarrollar Actividad (Multi-IA)', btn_quiz: '📝 Examen / Quiz (20 P)',
+        btn_tutor: '🤖 Tutor IA (Chat)', btn_slides: '📊 Generar Diapositivas (IA)',
+        btn_protocol: '⚙️ Generar Nuevo Protocolo',
+        sec_courses: 'Vista general de curso',
+        tab_all: 'Todos', tab_progress: 'En progreso', tab_future: 'Futuros',
+        tab_past: 'Pasados', tab_starred: 'Destacados', tab_hidden: 'Eliminado de la vista',
+        view_course: 'Ver curso', gen_protocol: '📄 Generar Protocolo',
+        enrolled: 'Cursos inscritos', completed: 'Cursos completados',
+        activities_done: 'Actividades completadas', activities_pending: 'Actividades pendientes',
+        completed_course: 'Curso completado'
+      },
+      en: {
+        nav_home: 'Home', nav_area: 'Personal area', nav_help: 'Help desk',
+        nav_reports: 'Reports', nav_recent: 'Recent ▾',
+        menu_help: 'Help desk', menu_reports: 'Reports', menu_profile: 'Profile',
+        menu_grades: 'Grades', menu_calendar: 'Calendar', menu_prefs: 'Preferences',
+        menu_lang: 'Language', menu_logout: 'Log out',
+        page_title: 'Personal area',
+        btn_activity: '🛠️ Develop Activity (Multi-AI)', btn_quiz: '📝 Exam / Quiz (20 Q)',
+        btn_tutor: '🤖 AI Tutor (Chat)', btn_slides: '📊 Generate Slides (AI)',
+        btn_protocol: '⚙️ Generate New Protocol',
+        sec_courses: 'Course overview',
+        tab_all: 'All', tab_progress: 'In progress', tab_future: 'Upcoming',
+        tab_past: 'Past', tab_starred: 'Starred', tab_hidden: 'Removed from view',
+        view_course: 'View course', gen_protocol: '📄 Generate Protocol',
+        enrolled: 'Enrolled courses', completed: 'Completed courses',
+        activities_done: 'Completed activities', activities_pending: 'Pending activities',
+        completed_course: 'Course completed'
+      }
+    };
+
+    function aplicarIdioma(lang) {
+      const dict = I18N[lang] || I18N.es;
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll('.btn-view-course').forEach((el) => { el.textContent = dict.view_course; });
+      document.querySelectorAll('.btn-gen-protocol span').forEach((el) => { el.textContent = dict.gen_protocol; });
+      document.querySelectorAll('.stat-label-val').forEach((el) => {
+        const t = el.textContent.trim();
+        if (t.includes('inscritos') || t.includes('Enrolled')) el.textContent = dict.enrolled;
+        else if (t.includes('completados') && t.includes('Cursos') || t.includes('Completed courses')) el.textContent = dict.completed;
+        else if (t.includes('Actividades completadas') || t.includes('Completed activities')) el.textContent = dict.activities_done;
+        else if (t.includes('pendientes') || t.includes('Pending')) el.textContent = dict.activities_pending;
+      });
+      document.querySelectorAll('.progress-percentage-text').forEach((el) => {
+        el.textContent = el.textContent.replace(/Curso completado|Course completed/g, dict.completed_course);
+      });
+      document.querySelectorAll('.activities-completed-text').forEach((el) => {
+        el.textContent = el.textContent.replace(/actividades completadas|activities completed/g, lang === 'en' ? 'activities completed' : 'actividades completadas');
+      });
+      document.querySelectorAll('.lang-opts button').forEach((b) => {
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+      });
+      document.documentElement.lang = lang;
+      localStorage.setItem('sima_lang', lang);
+    }
+
+    document.querySelectorAll('.lang-opts button').forEach((b) => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        aplicarIdioma(b.getAttribute('data-lang'));
+      });
+    });
+    aplicarIdioma(localStorage.getItem('sima_lang') || 'es');
+
+    // Check Gemini API key status
+    fetch('/api/key-status')
+      .then(res => res.json())
+      .then(data => {
+        const badgeText = document.getElementById('api-badge-text');
+        if (data.status === 'ok') {
+          badgeText.textContent = `IA Conectada (${data.formato})`;
+        } else if (data.status === 'missing') {
+          badgeText.textContent = `⚠️ Falta GEMINI_API_KEY en .env`;
+          document.getElementById('api-badge').style.background = '#fef2f2';
+          document.getElementById('api-badge').style.borderColor = '#fca5a5';
+          document.getElementById('api-badge').style.color = '#991b1b';
+        }
+      })
+      .catch(() => {});
+  </script>
+  <!-- Floating Tutor Button -->
+  <a href="/tutor" class="floating-tutor-btn" title="Consultar dudas con el Tutor IA">
+    <span style="font-size: 1.2rem;">🤖</span>
+    <span>Tutor IA UdeC</span>
+  </a>
+</body>
+</html>

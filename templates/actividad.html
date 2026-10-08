@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Desarrollador de Actividades IA | SIMA UdeC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #2b7bc4;
+      --bg-page: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+    body.dark-mode {
+      --bg-page: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    .nav { background: #5298e9; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; color: white; }
+    .nav a { color: white; text-decoration: none; font-weight: 700; }
+    .container { max-width: 860px; margin: 30px auto; width: 100%; padding: 0 16px; flex-grow: 1; }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid var(--border-color); }
+    h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 6px; }
+    p.sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 24px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+    select, textarea { width: 100%; padding: 11px; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background: var(--card-bg); color: var(--text-main); font-family: inherit; }
+    textarea { resize: vertical; min-height: 120px; }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(124,58,237,0.3); margin-top: 10px; }
+    .btn-submit:hover { background: linear-gradient(135deg, #6d28d9, #4c1d95); }
+    .result-box { display: none; margin-top: 30px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 26px; }
+    .result-box.active { display: block; }
+    .solution-content { font-size: 0.96rem; line-height: 1.65; color: var(--text-main); }
+    .solution-content h3 { color: var(--primary-blue); margin-top: 16px; margin-bottom: 8px; font-size: 1.1rem; }
+    .solution-content ul, .solution-content ol { padding-left: 20px; margin-bottom: 10px; }
+    .solution-content li { margin-bottom: 4px; }
+    .loading-box { text-align: center; padding: 40px; font-weight: 700; color: var(--text-muted); display: none; }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #7c3aed; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/dashboard">← Volver al Área Personal</a>
+    <span>🛠️ Desarrollador de Actividades (Multi-IA)</span>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h1>Desarrollador Experto de Actividades (Multi-IA)</h1>
+      <p class="sub">Pega aquí el enunciado exacto de la actividad o tarea que te dejó el profesor. Nuestras 3 inteligencias artificiales (OpenRouter / DeepSeek + Gemini Flash + Flash-Lite) colaborarán para resolverla con rigor académico, estructura impecable y nivel de 5to semestre.</p>
+
+      <form id="actividad-form" onsubmit="resolverActividad(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="course_name">Asignatura / Modalidad</label>
+            <select id="course_name" required>
+              <option value="LIBRE" selected>🌐 Tema Libre / Cualquier Asignatura / Consulta Abierta</option>
+              <option value="CIENCIA DE DATOS I">CIENCIA DE DATOS I - Semestre V</option>
+              <option value="DESARROLLO DE APPS">DESARROLLO DE APPS - Semestre V</option>
+              <option value="MATEMÁTICAS DISCRETAS">MATEMÁTICAS DISCRETAS - Semestre V</option>
+              <option value="METODOLOGÍA DE LA INVESTIGACIÓN">METODOLOGÍA DE LA INVESTIGACIÓN - Semestre V</option>
+              <option value="PROBABILIDAD Y ESTADÍSTICA">PROBABILIDAD Y ESTADÍSTICA - Semestre V</option>
+              <option value="SISTEMAS DIGITALES">SISTEMAS DIGITALES - Semestre V</option>
+              <option value="TEORÍAS DE AUTÓMATAS">TEORÍAS DE AUTÓMATAS Y LENGUAJES - Semestre V</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="unidad_num">Unidad Relacionada</label>
+            <select id="unidad_num" required>
+              <option value="libre" selected>🌐 Libre (Investigación global en la Web, sin módulos)</option>
+              <option value="1">Unidad 1</option>
+              <option value="2">Unidad 2</option>
+              <option value="3">Unidad 3</option>
+              <option value="4">Unidad 4</option>
+              <option value="todas">🌟 General / Todo el curso</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="enunciado">Enunciado o Petición de la Actividad / Tarea</label>
+          <textarea id="enunciado" required placeholder="Pega aquí todo lo que pide el profesor (ej: 'Realizar un diagrama entidad-relación y explicar la normalización hasta 3FN para una base de datos hospitalaria...')..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-resolver">
+          🚀 Resolver Actividad con Consenso Multi-IA
+        </button>
+      </form>
+
+      <div id="loading-box" class="loading-box">
+        <div class="spinner"></div>
+        <p id="loading-text">Las 3 IAs (OpenRouter, Gemini Flash y Flash-Lite) están analizando el módulo y estructurando la solución perfecta...</p>
+      </div>
+
+      <div id="result-box" class="result-box">
+        <h3 style="color: #7c3aed; margin-bottom: 14px; font-size: 1.2rem;">💡 Solución Estructurada para el Profesor</h3>
+        <div class="solution-content" id="solution-content"></div>
+        <button type="button" class="btn-submit" style="margin-top: 24px; background: #059669;" onclick="window.print()">
+          🖨️ Imprimir o Guardar como PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (localStorage.getItem('sima_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+
+    async function resolverActividad(e) {
+      e.preventDefault();
+      const course = document.getElementById('course_name').value;
+      const unidad = document.getElementById('unidad_num').value;
+      const enunciado = document.getElementById('enunciado').value;
+
+      document.getElementById('actividad-form').style.display = 'none';
+      document.getElementById('loading-box').style.display = 'block';
+      document.getElementById('result-box').classList.remove('active');
+
+      try {
+        const resp = await fetch('/api/resolver-actividad', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ course_name: course, unidad_num: unidad, enunciado: enunciado })
+        });
+        const data = await resp.json();
+
+        document.getElementById('loading-box').style.display = 'none';
+        document.getElementById('actividad-form').style.display = 'block';
+
+        if (data.solution) {
+          // Formatear HTML básico
+          let formatted = data.solution
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+          formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+          formatted = formatted.replace(/\n/g, '<br>');
+
+          document.getElementById('solution-content').innerHTML = formatted;
+          document.getElementById('result-box').classList.add('active');
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        } else {
+          alert('No se pudo generar la solución. Intenta de nuevo.');
+        }
+      } catch (err) {
+        document.getElementById('loading-box').style.display = 'none';
+        document.getElementById('actividad-form').style.display = 'block';
+        alert('Error de conexión con el motor multi-IA.');
+      }
+    }
+  </script>
+</body>
+</html>

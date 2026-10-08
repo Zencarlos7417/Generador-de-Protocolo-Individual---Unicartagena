@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Quiz Interactivo de Examen (20 Preguntas) | SIMA UdeC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #2b7bc4;
+      --bg-page: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+    body.dark-mode {
+      --bg-page: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg-page); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    .nav { background: #5298e9; padding: 0 28px; height: 64px; display: flex; align-items: center; justify-content: space-between; color: white; }
+    .nav a { color: white; text-decoration: none; font-weight: 700; }
+    
+    .container { max-width: 860px; margin: 30px auto; width: 100%; padding: 0 16px; flex-grow: 1; }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid var(--border-color); }
+    h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 6px; }
+    p.sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 24px; }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+    select { width: 100%; padding: 11px; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background: var(--card-bg); color: var(--text-main); font-family: inherit; }
+    
+    .btn-submit { width: 100%; background: linear-gradient(135deg, #d97706, #b45309); color: white; border: none; padding: 13px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(217,119,6,0.25); }
+    .btn-submit:hover { background: linear-gradient(135deg, #b45309, #92400e); }
+
+    .quiz-question-box { background: var(--bg-page); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .quiz-question-box h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; color: var(--primary-blue); }
+    .option-label { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; background: var(--card-bg); border: 1px solid var(--border-color); margin-bottom: 8px; cursor: pointer; font-size: 0.92rem; }
+    .option-label:hover { background: #f1f5f9; }
+    body.dark-mode .option-label:hover { background: #334155; }
+    
+    .quiz-results { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 20px; text-align: center; margin-top: 24px; color: #065f46; font-size: 1.2rem; font-weight: 800; }
+    
+    .loading-box { text-align: center; padding: 40px; font-weight: 700; color: var(--text-muted); }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #d97706; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/dashboard">← Volver al Área Personal</a>
+    <span>📝 Examen / Quiz de Repaso (20 Preguntas)</span>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h1>Generador de Exámenes y Quiz Interactivo</h1>
+      <p class="sub">Genera un examen único de <strong>20 preguntas de opción múltiple</strong> basado en los módulos oficiales de la UdeC. Cada vez que lo generes, las preguntas cambiarán para que puedas practicar sin memorizarlas.</p>
+
+      <form id="quiz-config-form" onsubmit="generarQuiz(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="course_name">Asignatura</label>
+            <select id="course_name" class="select-style" required>
+              <option value="CIENCIA DE DATOS I">CIENCIA DE DATOS I - Semestre V</option>
+              <option value="DESARROLLO DE APPS">DESARROLLO DE APPS - Semestre V</option>
+              <option value="MATEMÁTICAS DISCRETAS">MATEMÁTICAS DISCRETAS - Semestre V</option>
+              <option value="METODOLOGÍA DE LA INVESTIGACIÓN">METODOLOGÍA DE LA INVESTIGACIÓN - Semestre V</option>
+              <option value="PROBABILIDAD Y ESTADÍSTICA">PROBABILIDAD Y ESTADÍSTICA - Semestre V</option>
+              <option value="SISTEMAS DIGITALES">SISTEMAS DIGITALES - Semestre V</option>
+              <option value="TEORÍAS DE AUTÓMATAS">TEORÍAS DE AUTÓMATAS Y LENGUAJES - Semestre V</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="unidad_num">Unidad de Estudio</label>
+            <select id="unidad_num" class="select-style" required>
+              <option value="1">Unidad 1</option>
+              <option value="2">Unidad 2</option>
+              <option value="3">Unidad 3</option>
+              <option value="4">Unidad 4</option>
+              <option value="todas">🌟 Todas las Unidades (Examen Final)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-gen-quiz">
+          🚀 Generar Examen Nuevo de 20 Preguntas (IA)
+        </button>
+      </form>
+
+      <div id="quiz-loading" class="loading-box" style="display:none;">
+        <div class="spinner"></div>
+        <p>Generando 20 preguntas dinámicas con IA a partir de los módulos de la UdeC...</p>
+      </div>
+
+      <div id="quiz-container" style="margin-top: 30px; display:none;">
+        <form id="quiz-active-form" onsubmit="calificarQuiz(event)">
+          <div id="questions-list"></div>
+          <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669, #047857);">
+            ✅ Calificar Examen
+          </button>
+        </form>
+        <div id="quiz-results-box" class="quiz-results" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let preguntasGlobales = [];
+
+    if (localStorage.getItem('sima_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+
+    async function generarQuiz(e) {
+      e.preventDefault();
+      const course = document.getElementById('course_name').value;
+      const unidad = document.getElementById('unidad_num').value;
+
+      document.getElementById('quiz-config-form').style.display = 'none';
+      document.getElementById('quiz-loading').style.display = 'block';
+      document.getElementById('quiz-container').style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/generar-quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ course_name: course, unidad_num: unidad })
+        });
+        const data = await resp.json();
+        
+        document.getElementById('quiz-loading').style.display = 'none';
+
+        if (data.preguntas && data.preguntas.length > 0) {
+          preguntasGlobales = data.preguntas;
+          renderizarPreguntas(preguntasGlobales);
+          document.getElementById('quiz-container').style.display = 'block';
+        } else {
+          alert('No se pudieron generar las preguntas. Intenta de nuevo.');
+          document.getElementById('quiz-config-form').style.display = 'block';
+        }
+      } catch (err) {
+        document.getElementById('quiz-loading').style.display = 'none';
+        alert('Error de conexión con el generador de exámenes.');
+        document.getElementById('quiz-config-form').style.display = 'block';
+      }
+    }
+
+    function renderizarPreguntas(preguntas) {
+      const listDiv = document.getElementById('questions-list');
+      listDiv.innerHTML = '';
+
+      preguntas.forEach((q, idx) => {
+        const qBox = document.createElement('div');
+        qBox.className = 'quiz-question-box';
+        
+        let html = `<h4>Pregunta ${idx + 1}. ${q.pregunta}</h4>`;
+        q.opciones.forEach((op, opIdx) => {
+          const letra = String.fromCharCode(65 + opIdx); // A, B, C, D
+          html += `
+            <label class="option-label">
+              <input type="radio" name="p_${idx}" value="${letra}" required>
+              <span><strong>${letra})</strong> ${op}</span>
+            </label>
+          `;
+        });
+        qBox.innerHTML = html;
+        listDiv.appendChild(qBox);
+      });
+    }
+
+    function calificarQuiz(e) {
+      e.preventDefault();
+      let correctas = 0;
+      const total = preguntasGlobales.length;
+
+      preguntasGlobales.forEach((q, idx) => {
+        const selected = document.querySelector(`input[name="p_${idx}"]:checked`);
+        const boxes = document.querySelectorAll('.quiz-question-box')[idx];
+        
+        if (selected && selected.value === q.respuesta_correcta) {
+          correctas++;
+          boxes.style.borderColor = '#10b981';
+          boxes.style.background = '#ecfdf5';
+        } else {
+          boxes.style.borderColor = '#ef4444';
+          boxes.style.background = '#fef2f2';
+          // Resaltar la correcta
+          const labels = boxes.querySelectorAll('.option-label');
+          labels.forEach(l => {
+            if (l.querySelector('input').value === q.respuesta_correcta) {
+              l.style.background = '#bbf7d0';
+              l.style.fontWeight = 'bold';
+            }
+          });
+        }
+      });
+
+      const nota = ((correctas / total) * 5.0).toFixed(1);
+      const resBox = document.getElementById('quiz-results-box');
+      resBox.style.display = 'block';
+      resBox.innerHTML = `🎯 Resultado Final: ${correctas} de ${total} correctas.<br>Calificación estimada UdeC: <strong>${nota} / 5.0</strong><br><span style="font-size:.85rem;">Guardando en la nube…</span>`;
+      fetch('/api/guardar-nota', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          curso: document.getElementById('course_name').value,
+          unidad: document.getElementById('unidad_num').value,
+          correctas: correctas, total: total, nota: parseFloat(nota)
+        })
+      }).then(r => r.json()).then(d => {
+        resBox.innerHTML = `🎯 Resultado Final: ${correctas} de ${total} correctas.<br>Calificación estimada UdeC: <strong>${nota} / 5.0</strong>` +
+          (d.ok ? `<br><span style="font-size:.85rem;">✅ Nota guardada en Supabase</span>` : `<br><span style="font-size:.85rem;">(Nota local: nube no configurada)</span>`);
+      }).catch(() => {
+        resBox.innerHTML = `🎯 Resultado Final: ${correctas} de ${total} correctas.<br>Calificación estimada UdeC: <strong>${nota} / 5.0</strong>`;
+      });
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

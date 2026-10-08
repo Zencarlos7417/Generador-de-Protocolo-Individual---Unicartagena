@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#5298e9">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+  <title>Crear cuenta SIMA | Universidad de Cartagena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Source Sans 3', sans-serif; background: #f4f7fb; color: #1e293b; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; max-width: 440px; width: 100%; border-radius: 14px; padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,.08); border: 1px solid #e2e8f0; }
+    h1 { font-size: 1.5rem; margin-bottom: 6px; }
+    p { color: #64748b; font-size: .92rem; margin-bottom: 20px; }
+    label { display: block; font-weight: 700; font-size: .88rem; margin: 12px 0 6px; }
+    input { width: 100%; padding: 11px 14px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+    input:focus { outline: none; border-color: #5298e9; box-shadow: 0 0 0 3px rgba(82,152,233,.2); }
+    button { width: 100%; margin-top: 20px; background: #2b7bc4; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    button:hover { background: #1d5a94; }
+    .flash { background: #fdecea; color: #a33; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: .9rem; }
+    .links { margin-top: 16px; text-align: center; font-size: .9rem; }
+    .links a { color: #2b7bc4; font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📝 Crear cuenta SIMA</h1>
+    <p>Elige tu <strong>nombre de usuario</strong> y contraseña. Quedará guardado en la nube y podrás iniciar sesión con esos mismos datos.</p>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form action="/registro" method="POST">
+      <label for="username">Nombre de usuario</label>
+      <input type="text" id="username" name="username" placeholder="Ej: 1052959016 o carlos2026" required minlength="4">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+      <button type="submit">Crear cuenta</button>
+    </form>
+    <div class="links">¿Ya tienes cuenta? <a href="/login">Iniciar sesión</a> · <a href="/">Volver</a></div>
+  </div>
+</body>
+</html>
